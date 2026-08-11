@@ -357,11 +357,14 @@
       for (const file of files) {
         uploadStatus.innerText = `SUBIENDO: ${file.name}...`;
 
-        // Limpiar el nombre del archivo para eliminar caracteres inválidos (como ø, acentos, espacios extra)
+        // 1. Nombre original intacto para la interfaz visual (conserva acentos, tildes, etc.)
+        const originalTitle = file.name.replace(/\.[^/.]+$/, "");
+
+        // 2. Nombre sanitizado EXCLUSIVAMENTE para la ruta interna del Storage de Supabase
         const sanitizedFileName = file.name
           .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "") // Elimina acentos y diacríticos
-          .replace(/[^a-zA-Z0-9.\-_]/g, "_"); // Reemplaza caracteres especiales (incluyendo ø) por "_"
+          .replace(/[\u0300-\u036f]/g, "") // Limpia diacríticos para la URL
+          .replace(/[^a-zA-Z0-9.\-_]/g, "_"); // Solo caracteres seguros para Supabase Storage
 
         const filePath = `${currentUser.id}/${Date.now()}_${sanitizedFileName}`;
 
@@ -384,7 +387,7 @@
           uploadStatus.innerText = "¡SUBIDA COMPLETADA!";
           
           songs.push({
-            title: file.name.replace(/\.[^/.]+$/, ""), // Mantiene el título visual original
+            title: originalTitle, // Mostramos el título bonito con tildes
             artist: "CLOUD//TRACK",
             src: publicUrlData.publicUrl
           });
@@ -426,7 +429,9 @@
             .from("audio-tracks")
             .getPublicUrl(filePath);
 
-          const cleanName = file.name.replace(/^\d+_/, "").replace(/\.[^/.]+$/, "");
+          // Limpiamos el prefijo de Timestamp y convertimos guiones bajos de vuelta a espacios visuales
+          let cleanName = file.name.replace(/^\d+_/, "").replace(/\.[^/.]+$/, "");
+          cleanName = cleanName.replace(/_/g, " ");
 
           songs.push({
             title: cleanName,
