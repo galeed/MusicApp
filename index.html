@@ -13,7 +13,7 @@
   <!-- SDK Cliente Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Lector de Metadatos ID3 (Artista, Álbum, Portada) -->
+  <!-- Lector de Metadatos ID3 / Tags -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 
   <style>
@@ -138,7 +138,7 @@
     #auth-status { font-size: 0.65rem; margin-top: 6px; color: #ff0055; word-break: break-word; }
     .user-info { font-size: 0.7rem; color: #00f3ff; text-align: center; }
 
-    /* Contenedor de Carátula/Portada */
+    /* Contenedor de Portada */
     .cover-art-wrapper {
       width: 140px;
       height: 140px;
@@ -151,12 +151,6 @@
       align-items: center;
       background: rgba(0, 0, 0, 0.6);
       box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
-    }
-
-    .cover-art-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
     }
 
     .cover-art-placeholder {
@@ -185,7 +179,7 @@
     /* Track Info */
     .track-info { text-align: center; margin-bottom: 16px; }
     .track-info h2 { font-size: 0.95rem; color: #ffffff; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .track-info p { color: rgba(0, 243, 255, 0.7); font-size: 0.75rem; }
+    .track-info p { color: rgba(0, 243, 255, 0.7); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 0.7rem; color: #00f3ff; }
     .progress-container input[type="range"] { flex: 1; -webkit-appearance: none; background: #12121c; height: 6px; border-radius: 3px; border: 1px solid rgba(0, 243, 255, 0.3); outline: none; }
@@ -268,9 +262,8 @@
     </div>
 
     <!-- PORTADA DE ÁLBUM -->
-    <div class="cover-art-wrapper" id="cover-art-wrapper">
-      <div class="cover-art-placeholder" id="cover-placeholder">🎧</div>
-      <img id="cover-image" src="" alt="Album Cover" style="display: none;">
+    <div class="cover-art-wrapper">
+      <div class="cover-art-placeholder">🎧</div>
     </div>
 
     <!-- SUBIDA DE ARCHIVOS -->
@@ -322,14 +315,12 @@
 
     let currentUser = null;
 
-    // DOM Elements
+    // Elementos DOM
     const authForm = document.getElementById("auth-form");
     const userInfo = document.getElementById("user-info");
     const userEmail = document.getElementById("user-email");
     const authStatus = document.getElementById("auth-status");
     const uploadStatus = document.getElementById("upload-status");
-    const coverImage = document.getElementById("cover-image");
-    const coverPlaceholder = document.getElementById("cover-placeholder");
 
     // AUTH LOGIN/SIGNUP/LOGOUT
     document.getElementById("btn-signup").addEventListener("click", async () => {
@@ -372,7 +363,7 @@
       });
     }
 
-    // --- SUBIDA CON LECTURA DE METADATOS ID3 ---
+    // --- SUBIDA CON JSMEDIATAGS ---
     document.getElementById("file-input").addEventListener("change", async (e) => {
       if (!currentUser || !supabaseClient) {
         uploadStatus.innerText = "ERR: DEBES INICIAR SESIÓN PRIMERO";
@@ -383,24 +374,35 @@
       if (files.length === 0) return;
 
       for (const file of files) {
-        uploadStatus.innerText = `ANALIZANDO & SUBIENDO: ${file.name}...`;
+        uploadStatus.innerText = `LEYENDO TAGS & SUBIENDO: ${file.name}...`;
 
-        const originalTitle = file.name.replace(/\.[^/.]+$/, "");
+        let originalTitle = file.name.replace(/\.[^/.]+$/, "").replace(/^\d+[\s.\-_]+/, "");
         let detectedArtist = "ARTISTA DESCONOCIDO";
 
-        // Intentar leer Tags ID3 del archivo
+        // Lectura de metadatos con jsmediatags
         try {
           await new Promise((resolve) => {
             window.jsmediatags.read(file, {
               onSuccess: function(tag) {
-                if (tag.tags.artist) detectedArtist = tag.tags.artist;
+                const tags = tag.tags;
+                if (tags.title && tags.title.trim() !== "") {
+                  originalTitle = tags.title.trim();
+                }
+                if (tags.artist && tags.artist.trim() !== "") {
+                  detectedArtist = tags.artist.trim();
+                }
                 resolve();
               },
-              onError: function() { resolve(); }
+              onError: function() {
+                resolve();
+              }
             });
           });
-        } catch (e) { console.log("Metadata omitida"); }
+        } catch (err) {
+          console.log("Excepción jsmediatags:", err);
+        }
 
+        // Sanitización para la ruta en Supabase Storage
         const sanitizedFileName = file.name
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
@@ -420,7 +422,7 @@
           uploadStatus.innerText = "¡SUBIDA COMPLETADA!";
           
           songs.push({
-            fileNameOnServer: `${currentUser.id}/${filePath.split('/').pop()}`,
+            fileNameOnServer: filePath,
             title: originalTitle,
             artist: detectedArtist,
             src: publicUrlData.publicUrl
@@ -473,7 +475,7 @@
 
     // BORRAR PISTA DE LA NUBE
     async function deleteTrack(index, e) {
-      e.stopPropagation(); // Evitar reproducir al hacer clic en borrar
+      e.stopPropagation();
       const song = songs[index];
       if (!song) return;
 
@@ -520,8 +522,6 @@
       title.innerText = "SELECCIONA PISTA";
       artist.innerText = "SYSTEM//READY";
       audio.src = "";
-      coverImage.style.display = "none";
-      coverPlaceholder.style.display = "block";
     }
 
     function loadSong(song) { 
