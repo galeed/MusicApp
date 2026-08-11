@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyberpunk Audio Player Pro - Phase 4</title>
+  <title>MusicApp Pro</title>
   
-  <!-- Fuente Cyberpunk -->
+  <!-- Fuente Cyberpunk / Modern -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
@@ -30,64 +30,142 @@
         radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
         radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.08) 0%, transparent 40%);
       color: #00f3ff; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      min-height: 100vh; 
-      padding: 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .player-card {
+    /* BARRA NAVEGACIÓN SUPERIOR (NAVBAR) */
+    .navbar {
+      width: 100%;
+      background: rgba(10, 10, 18, 0.95);
+      border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+      backdrop-filter: blur(10px);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 15px rgba(0, 243, 255, 0.1);
+    }
+
+    .nav-brand {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #00f3ff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(0, 243, 255, 0.8);
+    }
+
+    .nav-menu-container {
+      position: relative;
+    }
+
+    .nav-icon-btn {
+      background: rgba(0, 243, 255, 0.1);
+      border: 1px solid #00f3ff;
+      color: #00f3ff;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .nav-icon-btn:hover {
+      background: rgba(0, 243, 255, 0.25);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 48px;
+      background: rgba(10, 10, 18, 0.95);
+      border: 1px solid rgba(0, 243, 255, 0.4);
+      border-radius: 8px;
+      width: 200px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      z-index: 101;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 12px 16px;
+      font-size: 0.75rem;
+      color: #ffffff;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(0, 243, 255, 0.15);
+      color: #00f3ff;
+    }
+
+    .dropdown-item.danger {
+      color: #ff0055;
+    }
+
+    .dropdown-item.danger:hover {
+      background: rgba(255, 0, 85, 0.15);
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .app-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+    }
+
+    /* PANTALLA LOGIN LIMPIA */
+    .auth-card {
       background: rgba(10, 10, 18, 0.85); 
       backdrop-filter: blur(12px); 
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(0, 243, 255, 0.3); 
+      border: 1px solid rgba(255, 0, 85, 0.4); 
       border-radius: 16px; 
-      padding: 24px 20px;
-      width: 100%; 
-      max-width: 420px; 
-      box-shadow: 0 0 20px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(0, 243, 255, 0.05);
-    }
-
-    .glitch-wrapper { 
-      text-align: center; 
-      margin-bottom: 16px; 
-    }
-
-    .glitch { 
-      font-size: 1.3rem; 
-      font-weight: 900; 
-      letter-spacing: 2px; 
-      color: #00f3ff; 
-      text-shadow: 0 0 8px rgba(0, 243, 255, 0.8); 
-    }
-
-    /* Autenticación */
-    .auth-section {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px dashed rgba(255, 0, 85, 0.4);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 16px;
+      padding: 30px 20px;
       text-align: center;
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.15);
     }
 
-    .auth-section h3 {
-      font-size: 0.75rem;
+    .auth-card h2 {
+      font-size: 1.1rem;
       color: #ff0055;
-      letter-spacing: 1.5px;
-      margin-bottom: 10px;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
     }
 
     .neon-input {
       width: 100%;
       background: #0d0d14;
       border: 1px solid rgba(0, 243, 255, 0.4);
-      border-radius: 6px;
-      padding: 8px 10px;
+      border-radius: 8px;
+      padding: 10px 12px;
       color: #ffffff;
-      font-size: 0.75rem;
-      margin-bottom: 8px;
+      font-size: 0.8rem;
+      margin-bottom: 12px;
       outline: none;
     }
 
@@ -96,16 +174,16 @@
       box-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
     }
 
-    .auth-buttons { display: flex; gap: 8px; }
+    .auth-buttons { display: flex; gap: 10px; }
 
     .neon-btn {
       flex: 1;
       background: rgba(0, 243, 255, 0.1);
       color: #00f3ff;
       border: 1px solid #00f3ff;
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 0.7rem;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
     }
@@ -115,28 +193,25 @@
       background: rgba(255, 0, 85, 0.1);
       color: #ff0055;
       border: 1px solid #ff0055;
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 0.7rem;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .neon-btn-danger {
-      width: 100%;
-      background: rgba(255, 0, 85, 0.2);
-      color: #ff0055;
-      border: 1px solid #ff0055;
-      padding: 6px;
-      border-radius: 6px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 6px;
-    }
+    #auth-status { font-size: 0.7rem; margin-top: 10px; color: #ff0055; word-break: break-word; }
 
-    #auth-status { font-size: 0.65rem; margin-top: 6px; color: #ff0055; word-break: break-word; }
-    .user-info { font-size: 0.7rem; color: #00f3ff; text-align: center; }
+    /* REPRODUCTOR (OCULTO POR DEFECTO) */
+    .player-card {
+      display: none;
+      background: rgba(10, 10, 18, 0.85); 
+      backdrop-filter: blur(12px); 
+      border: 1px solid rgba(0, 243, 255, 0.3); 
+      border-radius: 16px; 
+      padding: 24px 20px;
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(0, 243, 255, 0.05);
+    }
 
     /* Visualizador */
     .visualizer-wrapper {
@@ -152,7 +227,7 @@
 
     canvas { width: 100%; height: 100%; display: block; }
 
-    /* ECUALIZADOR (EQ 3 BANDAS) */
+    /* Ecualizador */
     .eq-container {
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(0, 243, 255, 0.2);
@@ -169,50 +244,12 @@
       text-align: center;
     }
 
-    .eq-sliders {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .eq-band {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .eq-band label {
-      font-size: 0.6rem;
-      color: #00f3ff;
-      margin-bottom: 4px;
-    }
-
-    .eq-band input[type="range"] {
-      -webkit-appearance: none;
-      width: 100%;
-      background: #12121c;
-      height: 4px;
-      border-radius: 2px;
-      border: 1px solid rgba(0, 243, 255, 0.3);
-      outline: none;
-    }
-
-    .eq-band input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #00f3ff;
-      box-shadow: 0 0 8px #00f3ff;
-      cursor: pointer;
-    }
-
-    .eq-val {
-      font-size: 0.55rem;
-      color: rgba(255, 255, 255, 0.7);
-      margin-top: 4px;
-    }
+    .eq-sliders { display: flex; justify-content: space-between; gap: 12px; }
+    .eq-band { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    .eq-band label { font-size: 0.6rem; color: #00f3ff; margin-bottom: 4px; }
+    .eq-band input[type="range"] { -webkit-appearance: none; width: 100%; background: #12121c; height: 4px; border-radius: 2px; border: 1px solid rgba(0, 243, 255, 0.3); outline: none; }
+    .eq-band input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #00f3ff; box-shadow: 0 0 8px #00f3ff; cursor: pointer; }
+    .eq-val { font-size: 0.55rem; color: rgba(255, 255, 255, 0.7); margin-top: 4px; }
 
     /* Subida */
     .file-upload-wrapper { margin-bottom: 14px; text-align: center; }
@@ -242,11 +279,7 @@
     .progress-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #ff0055; box-shadow: 0 0 8px #ff0055; }
 
     /* Controles */
-    .controls-secondary {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
+    .controls-secondary { display: flex; gap: 8px; margin-bottom: 8px; }
 
     .mode-btn {
       flex: 1;
@@ -295,110 +328,107 @@
       background: rgba(0, 243, 255, 0.1);
     }
 
-    .delete-btn {
-      color: #ff0055;
-      background: transparent;
-      border: none;
-      font-size: 0.75rem;
-      font-weight: bold;
-      padding: 2px 6px;
-      cursor: pointer;
-      opacity: 0.7;
-    }
-
+    .delete-btn { color: #ff0055; background: transparent; border: none; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; cursor: pointer; opacity: 0.7; }
     .delete-btn:hover { opacity: 1.0; }
   </style>
 </head>
 <body>
 
-  <div class="player-card">
-    <div class="glitch-wrapper">
-      <h1 class="glitch">NEON//STUDIO PRO</h1>
-    </div>
-
-    <!-- MÓDULO DE AUTENTICACIÓN -->
-    <div class="auth-section">
-      <div id="auth-form">
-        <h3>SYSTEM//ACCESS</h3>
-        <input type="email" id="auth-email" placeholder="CORREO@CYBER.COM" class="neon-input">
-        <input type="password" id="auth-password" placeholder="CONTRASEÑA" class="neon-input">
-        <div class="auth-buttons">
-          <button id="btn-login" class="neon-btn">LOGIN</button>
-          <button id="btn-signup" class="neon-btn-secondary">REGISTRAR</button>
-        </div>
-        <p id="auth-status"></p>
-      </div>
-
-      <div id="user-info" style="display: none;" class="user-info">
-        <p id="user-email">USER: UNKNOWN</p>
-        <button id="btn-logout" class="neon-btn-danger">LOGOUT</button>
+  <!-- BARRA SUPERIOR (OCULTA HASTA INICIAR SESIÓN) -->
+  <header class="navbar" id="app-navbar" style="display: none;">
+    <div class="nav-brand">MusicApp</div>
+    <div class="nav-menu-container">
+      <button class="nav-icon-btn" id="btn-toggle-menu">⚙</button>
+      <div class="dropdown-menu" id="dropdown-menu">
+        <div class="dropdown-item" id="menu-library">📂 Mi Biblioteca</div>
+        <div class="dropdown-item" id="menu-playlists">🎵 Listas de reproducción</div>
+        <div class="dropdown-item danger" id="menu-logout">🚪 Cerrar sesión</div>
       </div>
     </div>
+  </header>
 
-    <!-- VISUALIZADOR DE AUDIO NEÓN -->
-    <div class="visualizer-wrapper">
-      <canvas id="visualizer"></canvas>
+  <div class="app-container">
+
+    <!-- PANTALLA DE INICIO DE SESIÓN LIMPIA -->
+    <div class="auth-card" id="auth-screen">
+      <h2>SYSTEM//ACCESS</h2>
+      <input type="email" id="auth-email" placeholder="CORREO@CYBER.COM" class="neon-input">
+      <input type="password" id="auth-password" placeholder="CONTRASEÑA" class="neon-input">
+      <div class="auth-buttons">
+        <button id="btn-login" class="neon-btn">LOGIN</button>
+        <button id="btn-signup" class="neon-btn-secondary">REGISTRAR</button>
+      </div>
+      <p id="auth-status"></p>
     </div>
 
-    <!-- ECUALIZADOR PRO DE 3 BANDAS -->
-    <div class="eq-container">
-      <div class="eq-title">⚡ HARDWARE EQ // 3 BANDAS</div>
-      <div class="eq-sliders">
-        <div class="eq-band">
-          <label for="eq-low">LOW</label>
-          <input type="range" id="eq-low" min="-12" max="12" value="0" step="1">
-          <span id="eq-low-val" class="eq-val">0 dB</span>
+    <!-- REPRODUCTOR COMPLETO -->
+    <div class="player-card" id="player-screen">
+      <!-- VISUALIZADOR DE AUDIO NEÓN -->
+      <div class="visualizer-wrapper">
+        <canvas id="visualizer"></canvas>
+      </div>
+
+      <!-- ECUALIZADOR PRO DE 3 BANDAS -->
+      <div class="eq-container">
+        <div class="eq-title">⚡ HARDWARE EQ // 3 BANDAS</div>
+        <div class="eq-sliders">
+          <div class="eq-band">
+            <label for="eq-low">LOW</label>
+            <input type="range" id="eq-low" min="-12" max="12" value="0" step="1">
+            <span id="eq-low-val" class="eq-val">0 dB</span>
+          </div>
+          <div class="eq-band">
+            <label for="eq-mid">MID</label>
+            <input type="range" id="eq-mid" min="-12" max="12" value="0" step="1">
+            <span id="eq-mid-val" class="eq-val">0 dB</span>
+          </div>
+          <div class="eq-band">
+            <label for="eq-high">HIGH</label>
+            <input type="range" id="eq-high" min="-12" max="12" value="0" step="1">
+            <span id="eq-high-val" class="eq-val">0 dB</span>
+          </div>
         </div>
-        <div class="eq-band">
-          <label for="eq-mid">MID</label>
-          <input type="range" id="eq-mid" min="-12" max="12" value="0" step="1">
-          <span id="eq-mid-val" class="eq-val">0 dB</span>
-        </div>
-        <div class="eq-band">
-          <label for="eq-high">HIGH</label>
-          <input type="range" id="eq-high" min="-12" max="12" value="0" step="1">
-          <span id="eq-high-val" class="eq-val">0 dB</span>
-        </div>
+      </div>
+
+      <!-- SUBIDA DE ARCHIVOS -->
+      <div class="file-upload-wrapper">
+        <label for="file-input" class="custom-file-btn">⚡ SUBIR AUDIO A LA NUBE (.WAV / .FLAC)</label>
+        <input type="file" id="file-input" accept="audio/*,.wav,.flac,.mp3" multiple>
+        <p id="upload-status"></p>
+      </div>
+
+      <div class="track-info">
+        <h2 id="track-title">SELECCIONA PISTA</h2>
+        <p id="track-artist">SYSTEM//READY</p>
+      </div>
+
+      <div class="progress-container">
+        <span id="current-time">0:00</span>
+        <input type="range" id="progress-bar" value="0" min="0" step="0.1">
+        <span id="total-duration">0:00</span>
+      </div>
+
+      <!-- CONTROLES SECUNDARIOS (LOOP / SHUFFLE) -->
+      <div class="controls-secondary">
+        <button id="btn-loop" class="mode-btn">🔁 LOOP: OFF</button>
+        <button id="btn-shuffle" class="mode-btn">🔀 SHUFFLE: OFF</button>
+      </div>
+
+      <!-- CONTROLES PRINCIPALES -->
+      <div class="controls">
+        <button id="btn-prev">⏮</button>
+        <button id="btn-play">▶ PLAY</button>
+        <button id="btn-next">⏭</button>
+      </div>
+
+      <audio id="audio-player" crossorigin="anonymous"></audio>
+
+      <div class="playlist-container">
+        <h3 id="playlist-title">PLAYLIST//CYBER CLOUD</h3>
+        <ul id="playlist"></ul>
       </div>
     </div>
 
-    <!-- SUBIDA DE ARCHIVOS -->
-    <div class="file-upload-wrapper">
-      <label for="file-input" class="custom-file-btn">⚡ SUBIR AUDIO A LA NUBE (.WAV / .FLAC)</label>
-      <input type="file" id="file-input" accept="audio/*,.wav,.flac,.mp3" multiple>
-      <p id="upload-status"></p>
-    </div>
-
-    <div class="track-info">
-      <h2 id="track-title">SELECCIONA PISTA</h2>
-      <p id="track-artist">SYSTEM//READY</p>
-    </div>
-
-    <div class="progress-container">
-      <span id="current-time">0:00</span>
-      <input type="range" id="progress-bar" value="0" min="0" step="0.1">
-      <span id="total-duration">0:00</span>
-    </div>
-
-    <!-- CONTROLES SECUNDARIOS (LOOP / SHUFFLE) -->
-    <div class="controls-secondary">
-      <button id="btn-loop" class="mode-btn">🔁 LOOP: OFF</button>
-      <button id="btn-shuffle" class="mode-btn">🔀 SHUFFLE: OFF</button>
-    </div>
-
-    <!-- CONTROLES PRINCIPALES -->
-    <div class="controls">
-      <button id="btn-prev">⏮</button>
-      <button id="btn-play">▶ PLAY</button>
-      <button id="btn-next">⏭</button>
-    </div>
-
-    <audio id="audio-player" crossorigin="anonymous"></audio>
-
-    <div class="playlist-container">
-      <h3>PLAYLIST//CYBER CLOUD</h3>
-      <ul id="playlist"></ul>
-    </div>
   </div>
 
   <script>
@@ -418,14 +448,41 @@
 
     let currentUser = null;
 
-    // Elementos DOM
-    const authForm = document.getElementById("auth-form");
-    const userInfo = document.getElementById("user-info");
-    const userEmail = document.getElementById("user-email");
+    // Elementos DOM Globales
+    const appNavbar = document.getElementById("app-navbar");
+    const authScreen = document.getElementById("auth-screen");
+    const playerScreen = document.getElementById("player-screen");
     const authStatus = document.getElementById("auth-status");
     const uploadStatus = document.getElementById("upload-status");
+    const dropdownMenu = document.getElementById("dropdown-menu");
+    const btnToggleMenu = document.getElementById("btn-toggle-menu");
 
-    // AUTH LOGIN/SIGNUP/LOGOUT
+    // DESPLEGABLE NAVBAR
+    btnToggleMenu.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle("show");
+    });
+
+    document.addEventListener("click", () => {
+      dropdownMenu.classList.remove("show");
+    });
+
+    document.getElementById("menu-library").addEventListener("click", () => {
+      alert("Navegando a Mi Biblioteca");
+    });
+
+    document.getElementById("menu-playlists").addEventListener("click", () => {
+      alert("Navegando a Listas de Reproducción");
+    });
+
+    document.getElementById("menu-logout").addEventListener("click", async () => {
+      if (supabaseClient) await supabaseClient.auth.signOut();
+      pauseSong();
+      songs.length = 0;
+      renderPlaylist();
+    });
+
+    // AUTH LOGIN/SIGNUP
     document.getElementById("btn-signup").addEventListener("click", async () => {
       const email = document.getElementById("auth-email").value.trim();
       const password = document.getElementById("auth-password").value.trim();
@@ -444,24 +501,20 @@
       if (error) authStatus.innerText = `ERR: ${error.message}`;
     });
 
-    document.getElementById("btn-logout").addEventListener("click", async () => {
-      if (supabaseClient) await supabaseClient.auth.signOut();
-      songs.length = 0;
-      renderPlaylist();
-    });
-
+    // CONTROL DE ESTADO DE SESIÓN
     if (supabaseClient) {
       supabaseClient.auth.onAuthStateChange((event, session) => {
         if (session) {
           currentUser = session.user;
-          authForm.style.display = "none";
-          userInfo.style.display = "block";
-          userEmail.innerText = `ONLINE: ${currentUser.email}`;
+          authScreen.style.display = "none";
+          appNavbar.style.display = "flex";
+          playerScreen.style.display = "block";
           loadCloudTracks(); 
         } else {
           currentUser = null;
-          authForm.style.display = "block";
-          userInfo.style.display = "none";
+          authScreen.style.display = "block";
+          appNavbar.style.display = "none";
+          playerScreen.style.display = "none";
         }
       });
     }
@@ -634,24 +687,22 @@
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
 
-        // Nodos de Ecualizador
         lowFilter = audioCtx.createBiquadFilter();
         lowFilter.type = "lowshelf";
-        lowFilter.frequency.value = 60; // Frecuencia de graves
+        lowFilter.frequency.value = 60;
 
         midFilter = audioCtx.createBiquadFilter();
         midFilter.type = "peaking";
-        midFilter.frequency.value = 1000; // Frecuencia de medios
+        midFilter.frequency.value = 1000;
         midFilter.Q.value = 1.0;
 
         highFilter = audioCtx.createBiquadFilter();
         highFilter.type = "highshelf";
-        highFilter.frequency.value = 10000; // Frecuencia de agudos
+        highFilter.frequency.value = 10000;
 
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 64;
 
-        // Conexiones de Audio: Source -> Low -> Mid -> High -> Analyser -> Destination
         sourceNode = audioCtx.createMediaElementSource(audio);
         sourceNode.connect(lowFilter);
         lowFilter.connect(midFilter);
@@ -688,6 +739,8 @@
     // VISUALIZADOR DIBUJO
     function drawVisualizer() {
       requestAnimationFrame(drawVisualizer);
+
+      if (!playerScreen.clientWidth) return;
 
       canvas.width = canvas.parentElement.clientWidth;
       canvas.height = canvas.parentElement.clientHeight;
