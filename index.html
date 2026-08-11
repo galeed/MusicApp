@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyberpunk Audio Player + Auth</title>
+  <title>Cyberpunk Audio Player + Cloud Storage</title>
   
   <!-- Fuente Cyberpunk -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,7 +61,7 @@
       text-shadow: 0 0 8px rgba(0, 243, 255, 0.8); 
     }
 
-    /* --- ESTILOS DE AUTENTICACIÓN --- */
+    /* Autenticación */
     .auth-section {
       background: rgba(0, 0, 0, 0.4);
       border: 1px dashed rgba(255, 0, 85, 0.4);
@@ -170,7 +170,13 @@
       box-shadow: 0 0 10px rgba(255, 0, 85, 0.3); 
     }
 
-    /* Pista y reproductor */
+    #upload-status {
+      font-size: 0.65rem;
+      color: #00f3ff;
+      margin-top: 6px;
+    }
+
+    /* Reproductor */
     .track-info { text-align: center; margin-bottom: 20px; }
     .track-info h2 { font-size: 0.95rem; color: #ffffff; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .track-info p { color: rgba(0, 243, 255, 0.6); font-size: 0.75rem; }
@@ -195,7 +201,7 @@
       <h1 class="glitch" data-text="NEON//AUDIO">NEON//AUDIO</h1>
     </div>
 
-    <!-- MÓDULO DE AUTENTICACIÓN -->
+    <!-- AUTENTICACIÓN -->
     <div class="auth-section">
       <div id="auth-form">
         <h3>SYSTEM//ACCESS</h3>
@@ -214,10 +220,11 @@
       </div>
     </div>
 
-    <!-- REPRODUCTOR -->
+    <!-- SUBIDA A LA NUBE -->
     <div class="file-upload-wrapper">
-      <label for="file-input" class="custom-file-btn">⚡ CARGAR AUDIO (.WAV / .FLAC)</label>
+      <label for="file-input" class="custom-file-btn">⚡ SUBIR AUDIO A LA NUBE (.WAV / .FLAC)</label>
       <input type="file" id="file-input" accept="audio/*,.wav,.flac,.mp3" multiple>
+      <p id="upload-status"></p>
     </div>
 
     <div class="track-info">
@@ -237,70 +244,166 @@
       <button id="btn-next">⏭</button>
     </div>
 
-    <audio id="audio-player"></audio>
+    <audio id="audio-player" crossorigin="anonymous"></audio>
 
     <div class="playlist-container">
-      <h3>PLAYLIST//CYBER</h3>
+      <h3>PLAYLIST//CYBER CLOUD</h3>
       <ul id="playlist"></ul>
     </div>
   </div>
 
   <script>
     // --- CONFIGURACIÓN DE SUPABASE ---
-    const SUPABASE_URL = "https://cwpjjzamawyywfcsnaqo.supabase.co"; 
-    const SUPABASE_ANON_KEY = "sb_publishable_NynLf9J-n78PPW7Oaw2W1Q_0_kJjwtl"; 
+    const SUPABASE_URL = "https://
+cwpjjzamawyywfesnaqo.supabase.co";
+const SUPABASE_ANON_KEY =
+"sb_publishable_NynLf9J-
+n78PPW70aw2W1Q_0_kJjwtl";
     
-    // Inicializar cliente
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
 
     // DOM Auth
     const authForm = document.getElementById("auth-form");
     const userInfo = document.getElementById("user-info");
     const userEmail = document.getElementById("user-email");
     const authStatus = document.getElementById("auth-status");
-    const emailInput = document.getElementById("auth-email");
-    const passwordInput = document.getElementById("auth-password");
+    const uploadStatus = document.getElementById("upload-status");
 
-    // REGISTRO
-    document.getElementById("btn-signup").addEventListener("click", async () => {
+    // LOGIN & REGISTRO
+    document.getElementById("btn-signup").onclick = async () => {
+      const email = document.getElementById("auth-email").value.trim();
+      const password = document.getElementById("auth-password").value.trim();
+      if (!email || !password) return authStatus.innerText = "INGRESA CORREO Y CONTRASEÑA";
       authStatus.innerText = "PROCESANDO...";
-      const { data, error } = await supabaseClient.auth.signUp({
-        email: emailInput.value,
-        password: passwordInput.value
-      });
-      if (error) authStatus.innerText = `ERR: ${error.message}`;
-      else authStatus.innerText = "REGISTRO OK! REVISA TU EMAIL.";
-    });
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+      authStatus.innerText = error ? `ERR: ${error.message}` : "REGISTRO OK! REVISA TU EMAIL.";
+    };
 
-    // LOGIN
-    document.getElementById("btn-login").addEventListener("click", async () => {
+    document.getElementById("btn-login").onclick = async () => {
+      const email = document.getElementById("auth-email").value.trim();
+      const password = document.getElementById("auth-password").value.trim();
+      if (!email || !password) return authStatus.innerText = "INGRESA CORREO Y CONTRASEÑA";
       authStatus.innerText = "VERIFICANDO...";
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email: emailInput.value,
-        password: passwordInput.value
-      });
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) authStatus.innerText = `ERR: ${error.message}`;
-      else authStatus.innerText = "";
-    });
+    };
 
-    // LOGOUT
-    document.getElementById("btn-logout").addEventListener("click", async () => {
+    document.getElementById("btn-logout").onclick = async () => {
       await supabaseClient.auth.signOut();
-    });
+      songs.length = 0;
+      renderPlaylist();
+    };
 
-    // REVISAR ESTADO DE SESIÓN EN TIEMPO REAL
-    supabaseClient.auth.onAuthStateChange((event, session) => {
+    // ESCUCHAR ESTADO DE SESIÓN Y CARGAR CANCIONES DE LA NUBE
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
       if (session) {
+        currentUser = session.user;
         authForm.style.display = "none";
         userInfo.style.display = "block";
-        userEmail.innerText = `ONLINE: ${session.user.email}`;
+        userEmail.innerText = `ONLINE: ${currentUser.email}`;
+        loadCloudTracks(); // Cargar audios almacenados
       } else {
+        currentUser = null;
         authForm.style.display = "block";
         userInfo.style.display = "none";
       }
     });
 
-    // --- LÓGICA DEL REPRODUCTOR DE AUDIO ---
+    // --- SUBIDA A SUPABASE STORAGE ---
+    document.getElementById("file-input").addEventListener("change", async (e) => {
+      if (!currentUser) {
+        uploadStatus.innerText = "ERR: DEBES INICIAR SESIÓN PRIMERO";
+        return;
+      }
+
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+
+      for (const file of files) {
+        uploadStatus.innerText = `SUBIENDO: ${file.name}...`;
+        
+        // Crear una ruta única por usuario dentro del bucket
+        const filePath = `${currentUser.id}/${Date.now()}_${file.name}`;
+
+        const { data, error } = await supabaseClient
+          .storage
+          .from("audio-tracks")
+          .upload(filePath, file);
+
+        if (error) {
+          uploadStatus.innerText = `ERR AL SUBIR: ${error.message}`;
+          console.error(error);
+          return;
+        }
+
+        // Obtener la URL Pública del archivo subido
+        const { data: publicUrlData } = supabaseClient
+          .storage
+          .from("audio-tracks")
+          .getPublicUrl(filePath);
+
+        uploadStatus.innerText = "¡SUBIDA COMPLETADA!";
+        
+        // Agregar pista a la playlist y reproducir
+        songs.push({
+          title: file.name.replace(/\.[^/.]+$/, ""),
+          artist: "CLOUD//TRACK",
+          src: publicUrlData.publicUrl
+        });
+      }
+
+      renderPlaylist();
+      if (songs.length > 0) {
+        currentSongIndex = songs.length - 1;
+        loadSong(songs[currentSongIndex]);
+        playSong();
+      }
+    });
+
+    // LISTAR ARCHIVOS EXISTENTES DEL USUARIO EN LA NUBE
+    async function loadCloudTracks() {
+      if (!currentUser) return;
+      uploadStatus.innerText = "CARGANDO BIBLIOTECA NUBE...";
+
+      const { data, error } = await supabaseClient
+        .storage
+        .from("audio-tracks")
+        .list(currentUser.id, { limit: 100 });
+
+      if (error || !data) {
+        uploadStatus.innerText = "";
+        return;
+      }
+
+      songs.length = 0; // Limpiar lista
+      
+      data.forEach(file => {
+        const filePath = `${currentUser.id}/${file.name}`;
+        const { data: publicUrlData } = supabaseClient
+          .storage
+          .from("audio-tracks")
+          .getPublicUrl(filePath);
+
+        // Limpiar el timestamp del nombre visible
+        const cleanName = file.name.replace(/^\d+_/, "").replace(/\.[^/.]+$/, "");
+
+        songs.push({
+          title: cleanName,
+          artist: "CLOUD//TRACK",
+          src: publicUrlData.publicUrl
+        });
+      });
+
+      renderPlaylist();
+      if (songs.length > 0) {
+        loadSong(songs[0]);
+      }
+      uploadStatus.innerText = `BIBLIOTECA: ${songs.length} PISTAS`;
+    }
+
+    // --- REPRODUCTOR ---
     const songs = []; 
     let currentSongIndex = 0; 
     let isPlaying = false;
@@ -315,25 +418,6 @@
     const currentTimeEl = document.getElementById("current-time");
     const totalDurationEl = document.getElementById("total-duration");
     const playlistEl = document.getElementById("playlist");
-
-    document.getElementById("file-input").addEventListener("change", (e) => {
-      const files = Array.from(e.target.files);
-      if (files.length === 0) return;
-
-      songs.length = 0;
-      files.forEach(file => {
-        songs.push({ 
-          title: file.name.replace(/\.[^/.]+$/, ""), 
-          artist: "AUDIO//LOCAL", 
-          src: URL.createObjectURL(file) 
-        });
-      });
-
-      renderPlaylist(); 
-      currentSongIndex = 0; 
-      loadSong(songs[0]);
-      playSong();
-    });
 
     function loadSong(song) { 
       if (!song) return; 
