@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberpunk Audio Player</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Orbitron', monospace, sans-serif; }
+    body {
+      background-color: #050508;
+      background-image: radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.08) 0%, transparent 40%);
+      color: #00f3ff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px;
+    }
+    .player-card {
+      background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 16px; padding: 24px 20px;
+      width: 100%; max-width: 380px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+    }
+    .glitch-wrapper { text-align: center; margin-bottom: 20px; }
+    .glitch { font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; color: #00f3ff; position: relative; text-shadow: 0 0 8px rgba(0, 243, 255, 0.8); }
+    .file-upload-wrapper { margin-bottom: 20px; text-align: center; }
+    #file-input { display: none; }
+    .custom-file-btn { display: block; color: #ff0055; border: 1px solid #ff0055; padding: 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; box-shadow: 0 0 10px rgba(255, 0, 85, 0.3); }
+    .track-info { text-align: center; margin-bottom: 20px; }
+    .track-info h2 { font-size: 1rem; color: #ffffff; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-info p { color: rgba(0, 243, 255, 0.6); font-size: 0.75rem; }
+    .progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 0.7rem; }
+    .progress-container input[type="range"] { flex: 1; -webkit-appearance: none; background: #12121c; height: 6px; border: 1px solid rgba(0, 243, 255, 0.3); }
+    .progress-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #ff0055; box-shadow: 0 0 10px #ff0055; }
+    .controls { display: flex; gap: 10px; margin-bottom: 24px; }
+    .controls button { flex: 1; background: rgba(0, 243, 255, 0.05); color: #00f3ff; border: 1px solid #00f3ff; padding: 12px 0; border-radius: 8px; font-weight: 700; font-size: 0.85rem; }
+    .playlist-container h3 { font-size: 0.75rem; color: #ff0055; margin-bottom: 10px; border-bottom: 1px solid rgba(255, 0, 85, 0.3); }
+    .playlist-container ul { list-style: none; max-height: 150px; overflow-y: auto; }
+    .playlist-container li { padding: 10px; font-size: 0.75rem; color: #a0a0b0; background: rgba(255, 255, 255, 0.02); margin-bottom: 4px; cursor: pointer;}
+    .playlist-container li.active { color: #00f3ff; border-color: #00f3ff; background: rgba(0, 243, 255, 0.1); }
+  </style>
+</head>
+<body>
+
+  <div class="player-card">
+    <div class="glitch-wrapper"><h1 class="glitch" data-text="NEON//AUDIO">NEON//AUDIO</h1></div>
+    <div class="file-upload-wrapper">
+      <label for="file-input" class="custom-file-btn">⚡ CARGAR AUDIO (.WAV/.FLAC)</label>
+      <input type="file" id="file-input" accept="audio/*" multiple>
+    </div>
+    <div class="track-info"><h2 id="track-title">SELECCIONA PISTA</h2><p id="track-artist">SYSTEM//READY</p></div>
+    <div class="progress-container">
+      <span id="current-time">0:00</span>
+      <input type="range" id="progress-bar" value="0" min="0" step="0.1">
+      <span id="total-duration">0:00</span>
+    </div>
+    <div class="controls">
+      <button id="btn-prev">⏮</button>
+      <button id="btn-play">▶ PLAY</button>
+      <button id="btn-next">⏭</button>
+    </div>
+    <audio id="audio-player"></audio>
+    <div class="playlist-container"><h3>PLAYLIST//CYBER</h3><ul id="playlist"></ul></div>
+  </div>
+
+  <script>
+    const songs = []; let currentSongIndex = 0; let isPlaying = false;
+    const audio = document.getElementById("audio-player");
+    const title = document.getElementById("track-title");
+    const artist = document.getElementById("track-artist");
+    const btnPlay = document.getElementById("btn-play");
+    const progressBar = document.getElementById("progress-bar");
+    const playlistEl = document.getElementById("playlist");
+
+    document.getElementById("file-input").addEventListener("change", (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+      songs.length = 0;
+      files.forEach(file => {
+        songs.push({ title: file.name.replace(/\.[^/.]+$/, ""), artist: "AUDIO//LOCAL", src: URL.createObjectURL(file) });
+      });
+      renderPlaylist(); currentSongIndex = 0; loadSong(songs[0]);
+    });
+
+    function loadSong(song) { if(!song) return; title.innerText = song.title; audio.src = song.src; updatePlaylistHighlight(); }
+    function playSong() { if(songs.length === 0) return; isPlaying = true; btnPlay.innerText = "⏸ PAUSE"; audio.play(); }
+    function pauseSong() { isPlaying = false; btnPlay.innerText = "▶ PLAY"; audio.pause(); }
+
+    btnPlay.addEventListener("click", () => { if(songs.length === 0) return; isPlaying ? pauseSong() : playSong(); });
+    document.getElementById("btn-prev").addEventListener("click", () => { if(songs.length === 0) return; currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length; loadSong(songs[currentSongIndex]); playSong(); });
+    document.getElementById("btn-next").addEventListener("click", () => { if(songs.length === 0) return; currentSongIndex = (currentSongIndex + 1) % songs.length; loadSong(songs[currentSongIndex]); playSong(); });
+
+    audio.addEventListener("timeupdate", () => {
+      if (audio.duration) {
+        progressBar.value = (audio.currentTime / audio.duration) * 100;
+        document.getElementById("current-time").innerText = formatTime(audio.currentTime);
+        document.getElementById("total-duration").innerText = formatTime(audio.duration);
+      }
+    });
+    progressBar.addEventListener("input", () => { if(audio.duration) audio.currentTime = (progressBar.value / 100) * audio.duration; });
+    audio.addEventListener("ended", () => document.getElementById("btn-next").click());
+
+    function formatTime(s) { const min = Math.floor(s/60); const sec = Math.floor(s%60); return `${min}:${sec < 10 ? '0':''}${sec}`; }
+    function renderPlaylist() {
+      playlistEl.innerHTML = "";
+      songs.forEach((song, i) => {
+        const li = document.createElement("li"); li.innerText = `> ${song.title}`;
+        li.addEventListener("click", () => { currentSongIndex = i; loadSong(songs[currentSongIndex]); playSong(); });
+        playlistEl.appendChild(li);
+      });
+    }
+    function updatePlaylistHighlight() {
+      playlistEl.querySelectorAll("li").forEach((item, i) => { i === currentSongIndex ? item.classList.add("active") : item.classList.remove("active"); });
+    }
+  </script>
+</body>
+</html>
