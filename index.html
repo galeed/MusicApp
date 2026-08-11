@@ -24,8 +24,9 @@
       font-family: 'Orbitron', monospace, sans-serif; 
     }
 
+    /* 1. FONDO DINÁMICO (TV VINTAGE / GAMER DARK) */
     body {
-      background-color: #050508;
+      background-color: #030305;
       background-image: 
         radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
         radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.08) 0%, transparent 40%);
@@ -34,6 +35,40 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
+      overflow-x: hidden;
+      animation: crtFlicker 0.15s infinite alternate;
+    }
+
+    /* Líneas de escaneo CRT (Scanlines) */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.25) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 998;
+      pointer-events: none;
+    }
+
+    /* Micro-ruido y viñeta CRT */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.85) 100%);
+      box-shadow: inset 0 0 80px rgba(0, 243, 255, 0.05);
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    /* Animación de Parpadeo CRT Tubo de Rayos Catódicos */
+    @keyframes crtFlicker {
+      0% { opacity: 0.97; }
+      100% { opacity: 1; }
     }
 
     /* BARRA NAVEGACIÓN SUPERIOR (NAVBAR) */
@@ -48,7 +83,7 @@
       align-items: center;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1000;
       box-shadow: 0 2px 15px rgba(0, 243, 255, 0.1);
     }
 
@@ -96,7 +131,7 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(12px);
       overflow: hidden;
-      z-index: 101;
+      z-index: 1001;
     }
 
     .dropdown-menu.show {
@@ -137,9 +172,10 @@
       flex-direction: column;
       justify-content: center;
       flex: 1;
+      z-index: 10;
     }
 
-    /* PANTALLA LOGIN LIMPIA */
+    /* PANTALLA LOGIN CON GLITCH Y SOMBRAS PROCESADAS */
     .auth-card {
       background: rgba(10, 10, 18, 0.85); 
       backdrop-filter: blur(12px); 
@@ -148,6 +184,7 @@
       padding: 30px 20px;
       text-align: center;
       box-shadow: 0 0 20px rgba(255, 0, 85, 0.15);
+      position: relative;
     }
 
     .auth-card h2 {
@@ -155,6 +192,39 @@
       color: #ff0055;
       letter-spacing: 2px;
       margin-bottom: 20px;
+      text-shadow: 0 0 5px rgba(255, 0, 85, 0.6);
+    }
+
+    /* ANIMACIÓN Y EFECTO GLITCH PARA CONTENEDOR LOGIN/LOGOUT */
+    .glitch-effect {
+      animation: cyberGlitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+
+    @keyframes cyberGlitch {
+      0% {
+        transform: translate(0);
+        box-shadow: 0 0 20px rgba(255, 0, 85, 0.15);
+      }
+      20% {
+        transform: translate(-4px, 3px);
+        box-shadow: -4px 0 #00f3ff, 4px 0 #ff0055;
+      }
+      40% {
+        transform: translate(4px, -3px);
+        box-shadow: 4px 0 #00f3ff, -4px 0 #ff0055;
+      }
+      60% {
+        transform: translate(-2px, 1px);
+        box-shadow: -2px 0 #ff0055, 2px 0 #00f3ff;
+      }
+      80% {
+        transform: translate(2px, -1px);
+        box-shadow: 2px 0 #00f3ff, -2px 0 #ff0055;
+      }
+      100% {
+        transform: translate(0);
+        box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+      }
     }
 
     .neon-input {
@@ -186,6 +256,12 @@
       font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .neon-btn:hover {
+      background: rgba(0, 243, 255, 0.25);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
     }
 
     .neon-btn-secondary {
@@ -198,11 +274,17 @@
       font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .neon-btn-secondary:hover {
+      background: rgba(255, 0, 85, 0.25);
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
     }
 
     #auth-status { font-size: 0.7rem; margin-top: 10px; color: #ff0055; word-break: break-word; }
 
-    /* REPRODUCTOR (OCULTO POR DEFECTO) */
+    /* REPRODUCTOR */
     .player-card {
       display: none;
       background: rgba(10, 10, 18, 0.85); 
@@ -265,6 +347,12 @@
       font-weight: 700; 
       cursor: pointer; 
       box-shadow: 0 0 8px rgba(255, 0, 85, 0.3); 
+      transition: all 0.2s;
+    }
+
+    .custom-file-btn:hover {
+      background: rgba(255, 0, 85, 0.15);
+      box-shadow: 0 0 12px rgba(255, 0, 85, 0.5);
     }
 
     #upload-status { font-size: 0.65rem; color: #00f3ff; margin-top: 6px; }
@@ -276,7 +364,7 @@
 
     .progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 0.65rem; color: #00f3ff; }
     .progress-container input[type="range"] { flex: 1; -webkit-appearance: none; background: #12121c; height: 5px; border-radius: 3px; border: 1px solid rgba(0, 243, 255, 0.3); outline: none; }
-    .progress-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #ff0055; box-shadow: 0 0 8px #ff0055; }
+    .progress-container input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #ff0055; box-shadow: 0 0 8px #ff0055; cursor: pointer; }
 
     /* Controles */
     .controls-secondary { display: flex; gap: 8px; margin-bottom: 8px; }
@@ -301,7 +389,8 @@
     }
 
     .controls { display: flex; gap: 8px; margin-bottom: 16px; }
-    .controls button { flex: 1; background: rgba(0, 243, 255, 0.05); color: #00f3ff; border: 1px solid #00f3ff; padding: 8px 0; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+    .controls button { flex: 1; background: rgba(0, 243, 255, 0.05); color: #00f3ff; border: 1px solid #00f3ff; padding: 8px 0; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+    .controls button:hover { background: rgba(0, 243, 255, 0.2); box-shadow: 0 0 10px rgba(0, 243, 255, 0.4); }
 
     /* Playlist */
     .playlist-container h3 { font-size: 0.7rem; color: #ff0055; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 0, 85, 0.3); padding-bottom: 4px; }
@@ -318,6 +407,12 @@
       margin-bottom: 4px;
       border-radius: 6px;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .playlist-item:hover {
+      background: rgba(0, 243, 255, 0.05);
+      color: #ffffff;
     }
 
     .playlist-item .track-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; margin-right: 8px; }
@@ -349,7 +444,7 @@
 
   <div class="app-container">
 
-    <!-- PANTALLA DE INICIO DE SESIÓN LIMPIA -->
+    <!-- PANTALLA DE INICIO DE SESIÓN CON GLITCH -->
     <div class="auth-card" id="auth-screen">
       <h2>SYSTEM//ACCESS</h2>
       <input type="email" id="auth-email" placeholder="CORREO@CYBER.COM" class="neon-input">
@@ -457,6 +552,17 @@
     const dropdownMenu = document.getElementById("dropdown-menu");
     const btnToggleMenu = document.getElementById("btn-toggle-menu");
 
+    // Función auxiliar para aplicar el efecto Glitch
+    function triggerGlitchEffect(element, callback) {
+      element.classList.remove("glitch-effect");
+      void element.offsetWidth; // Trigger reflow
+      element.classList.add("glitch-effect");
+      setTimeout(() => {
+        element.classList.remove("glitch-effect");
+        if (callback) callback();
+      }, 400);
+    }
+
     // DESPLEGABLE NAVBAR
     btnToggleMenu.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -475,11 +581,14 @@
       alert("Navegando a Listas de Reproducción");
     });
 
+    // LOGOUT CON EFECTO GLITCH EN EL CONTENEDOR
     document.getElementById("menu-logout").addEventListener("click", async () => {
-      if (supabaseClient) await supabaseClient.auth.signOut();
-      pauseSong();
-      songs.length = 0;
-      renderPlaylist();
+      triggerGlitchEffect(playerScreen, async () => {
+        if (supabaseClient) await supabaseClient.auth.signOut();
+        pauseSong();
+        songs.length = 0;
+        renderPlaylist();
+      });
     });
 
     // AUTH LOGIN/SIGNUP
@@ -492,10 +601,13 @@
       authStatus.innerText = error ? `ERR: ${error.message}` : "REGISTRO OK! REVISA TU EMAIL.";
     });
 
+    // LOGIN CON EFECTO GLITCH EN EL CONTENEDOR
     document.getElementById("btn-login").addEventListener("click", async () => {
       const email = document.getElementById("auth-email").value.trim();
       const password = document.getElementById("auth-password").value.trim();
       if (!email || !password) return authStatus.innerText = "INGRESA CORREO Y CONTRASEÑA";
+      
+      triggerGlitchEffect(authScreen);
       authStatus.innerText = "VERIFICANDO...";
       const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) authStatus.innerText = `ERR: ${error.message}`;
@@ -509,12 +621,14 @@
           authScreen.style.display = "none";
           appNavbar.style.display = "flex";
           playerScreen.style.display = "block";
+          triggerGlitchEffect(playerScreen);
           loadCloudTracks(); 
         } else {
           currentUser = null;
           authScreen.style.display = "block";
           appNavbar.style.display = "none";
           playerScreen.style.display = "none";
+          triggerGlitchEffect(authScreen);
         }
       });
     }
