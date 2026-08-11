@@ -138,24 +138,22 @@
     #auth-status { font-size: 0.65rem; margin-top: 6px; color: #ff0055; word-break: break-word; }
     .user-info { font-size: 0.7rem; color: #00f3ff; text-align: center; }
 
-    /* Contenedor de Portada */
-    .cover-art-wrapper {
-      width: 140px;
-      height: 140px;
+    /* Canvas del Visualizador */
+    .visualizer-wrapper {
+      width: 100%;
+      height: 120px;
       margin: 0 auto 16px auto;
-      border: 2px solid #00f3ff;
+      border: 1px solid rgba(0, 243, 255, 0.4);
       border-radius: 12px;
       overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.6);
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+      background: rgba(5, 5, 12, 0.9);
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.8);
     }
 
-    .cover-art-placeholder {
-      font-size: 2.5rem;
-      color: rgba(0, 243, 255, 0.3);
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     /* Subida de Archivos */
@@ -261,9 +259,9 @@
       </div>
     </div>
 
-    <!-- PORTADA DE ÁLBUM -->
-    <div class="cover-art-wrapper">
-      <div class="cover-art-placeholder">🎧</div>
+    <!-- VISUALIZADOR DE AUDIO NEÓN -->
+    <div class="visualizer-wrapper">
+      <canvas id="visualizer"></canvas>
     </div>
 
     <!-- SUBIDA DE ARCHIVOS -->
@@ -379,30 +377,22 @@
         let originalTitle = file.name.replace(/\.[^/.]+$/, "").replace(/^\d+[\s.\-_]+/, "");
         let detectedArtist = "ARTISTA DESCONOCIDO";
 
-        // Lectura de metadatos con jsmediatags
         try {
           await new Promise((resolve) => {
             window.jsmediatags.read(file, {
               onSuccess: function(tag) {
                 const tags = tag.tags;
-                if (tags.title && tags.title.trim() !== "") {
-                  originalTitle = tags.title.trim();
-                }
-                if (tags.artist && tags.artist.trim() !== "") {
-                  detectedArtist = tags.artist.trim();
-                }
+                if (tags.title && tags.title.trim() !== "") originalTitle = tags.title.trim();
+                if (tags.artist && tags.artist.trim() !== "") detectedArtist = tags.artist.trim();
                 resolve();
               },
-              onError: function() {
-                resolve();
-              }
+              onError: function() { resolve(); }
             });
           });
         } catch (err) {
           console.log("Excepción jsmediatags:", err);
         }
 
-        // Sanitización para la ruta en Supabase Storage
         const sanitizedFileName = file.name
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
@@ -502,7 +492,7 @@
       }
     }
 
-    // --- LÓGICA DEL REPRODUCTOR ---
+    // --- LÓGICA DEL REPRODUCTOR & WEB AUDIO API ---
     const songs = []; 
     let currentSongIndex = 0; 
     let isPlaying = false;
@@ -517,6 +507,81 @@
     const currentTimeEl = document.getElementById("current-time");
     const totalDurationEl = document.getElementById("total-duration");
     const playlistEl = document.getElementById("playlist");
+
+    // VISUALIZADOR SETUP
+    const canvas = document.getElementById("visualizer");
+    const canvasCtx = canvas.getContext("2d");
+    let audioCtx = null;
+    let analyser = null;
+    let sourceNode = null;
+    let visualizerInitialized = false;
+
+    function initAudioContext() {
+      if (visualizerInitialized) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64; // Número de barras de espectro
+
+        sourceNode = audioCtx.createMediaElementSource(audio);
+        sourceNode.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
+        visualizerInitialized = true;
+        drawVisualizer();
+      } catch (e) {
+        console.log("Web Audio API Error:", e);
+      }
+    }
+
+    function drawVisualizer() {
+      requestAnimationFrame(drawVisualizer);
+
+      // Ajustar resolución del canvas
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+
+      const width = canvas.width;
+      const height = canvas.height;
+
+      canvasCtx.clearRect(0, 0, width, height);
+
+      if (!analyser) {
+        // Línea base estática en espera
+        canvasCtx.strokeStyle = "rgba(0, 243, 255, 0.3)";
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(0, height / 2);
+        canvasCtx.lineTo(width, height / 2);
+        canvasCtx.stroke();
+        return;
+      }
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      analyser.getByteFrequencyData(dataArray);
+
+      const barWidth = (width / bufferLength) * 1.5;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = (dataArray[i] / 255) * height * 0.85;
+
+        // Degradado neón (Cian a Magenta)
+        const gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
+        gradient.addColorStop(0, "#00f3ff");
+        gradient.addColorStop(0.7, "#ff0055");
+        gradient.addColorStop(1, "#ffffff");
+
+        canvasCtx.fillStyle = gradient;
+        canvasCtx.shadowBlur = 10;
+        canvasCtx.shadowColor = "#00f3ff";
+
+        canvasCtx.fillRect(x, height - barHeight, barWidth - 3, barHeight);
+
+        x += barWidth;
+      }
+    }
 
     function resetPlayerUI() {
       title.innerText = "SELECCIONA PISTA";
@@ -535,6 +600,11 @@
 
     function playSong() { 
       if (songs.length === 0) return; 
+      initAudioContext();
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise
@@ -625,6 +695,9 @@
         }
       });
     }
+
+    // Inicializar render de canvas en espera
+    drawVisualizer();
   </script>
 </body>
 </html>
