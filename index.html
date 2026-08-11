@@ -356,7 +356,14 @@
 
       for (const file of files) {
         uploadStatus.innerText = `SUBIENDO: ${file.name}...`;
-        const filePath = `${currentUser.id}/${Date.now()}_${file.name}`;
+
+        // Limpiar el nombre del archivo para eliminar caracteres inválidos (como ø, acentos, espacios extra)
+        const sanitizedFileName = file.name
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "") // Elimina acentos y diacríticos
+          .replace(/[^a-zA-Z0-9.\-_]/g, "_"); // Reemplaza caracteres especiales (incluyendo ø) por "_"
+
+        const filePath = `${currentUser.id}/${Date.now()}_${sanitizedFileName}`;
 
         try {
           const { error } = await supabaseClient
@@ -377,7 +384,7 @@
           uploadStatus.innerText = "¡SUBIDA COMPLETADA!";
           
           songs.push({
-            title: file.name.replace(/\.[^/.]+$/, ""),
+            title: file.name.replace(/\.[^/.]+$/, ""), // Mantiene el título visual original
             artist: "CLOUD//TRACK",
             src: publicUrlData.publicUrl
           });
