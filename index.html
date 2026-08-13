@@ -26,9 +26,6 @@
 
     body {
       background-color: #030305;
-      background-image: 
-        radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.08) 0%, transparent 40%);
       color: #00f3ff; 
       min-height: 100vh;
       display: flex;
@@ -36,8 +33,27 @@
       align-items: center;
       position: relative;
       overflow-x: hidden;
-      padding-bottom: 90px; /* Espacio para el reproductor flotante */
-      animation: crtFlicker 0.15s infinite alternate;
+      padding-bottom: 90px;
+    }
+
+    /* RUIDO DE TV ANALÓGICA EN EL FONDO */
+    #tv-static-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.18; /* Ajusta la intensidad del ruido aquí */
+      display: block;
+    }
+
+    /* Fondo degradado por defecto al iniciar sesión */
+    body.logged-in {
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.08) 0%, transparent 40%);
     }
 
     /* Scanlines CRT */
@@ -47,7 +63,7 @@
       top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
       background-size: 100% 4px;
-      z-index: 998;
+      z-index: 1;
       pointer-events: none;
     }
 
@@ -57,13 +73,8 @@
       top: 0; left: 0; width: 100%; height: 100%;
       background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.85) 100%);
       box-shadow: inset 0 0 80px rgba(0, 243, 255, 0.05);
-      z-index: 999;
+      z-index: 1;
       pointer-events: none;
-    }
-
-    @keyframes crtFlicker {
-      0% { opacity: 0.97; }
-      100% { opacity: 1; }
     }
 
     /* NAVBAR */
@@ -137,15 +148,37 @@
     .dropdown-item.danger { color: #ff0055; }
     .dropdown-item.danger:hover { background: rgba(255, 0, 85, 0.15); }
 
-    /* CONTENEDOR Y VISTAS */
+    /* CONTENEDOR PRINCIPAL Y CENTRADO DE LOGIN */
     .app-container {
       width: 100%;
       max-width: 460px;
       padding: 20px 16px;
       z-index: 10;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
-    .auth-card, .view-card {
+    /* ESTADO DESCONECTADO: Centra la auth-card en medio de la pantalla */
+    body:not(.logged-in) .app-container {
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 90px);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(10, 10, 18, 0.88); 
+      backdrop-filter: blur(16px); 
+      border: 1px solid rgba(255, 0, 85, 0.4); 
+      border-radius: 16px; 
+      padding: 28px 24px;
+      box-shadow: 0 0 25px rgba(255, 0, 85, 0.2);
+      text-align: center;
+    }
+
+    .view-card {
       background: rgba(10, 10, 18, 0.85); 
       backdrop-filter: blur(12px); 
       border: 1px solid rgba(0, 243, 255, 0.3); 
@@ -154,20 +187,16 @@
       box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
     }
 
-    .auth-card {
-      border-color: rgba(255, 0, 85, 0.4);
-      text-align: center;
-    }
-
+    /* ANIMACIÓN GLITCH DE LOGIN */
     .glitch-effect { animation: cyberGlitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
 
     @keyframes cyberGlitch {
-      0% { transform: translate(0); box-shadow: 0 0 20px rgba(255, 0, 85, 0.15); }
+      0% { transform: translate(0); box-shadow: 0 0 20px rgba(255, 0, 85, 0.2); }
       20% { transform: translate(-4px, 3px); box-shadow: -4px 0 #00f3ff, 4px 0 #ff0055; }
       40% { transform: translate(4px, -3px); box-shadow: 4px 0 #00f3ff, -4px 0 #ff0055; }
       60% { transform: translate(-2px, 1px); box-shadow: -2px 0 #ff0055, 2px 0 #00f3ff; }
       80% { transform: translate(2px, -1px); box-shadow: 2px 0 #00f3ff, -2px 0 #ff0055; }
-      100% { transform: translate(0); box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); }
+      100% { transform: translate(0); box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); }
     }
 
     .neon-input {
@@ -175,34 +204,45 @@
       background: #0d0d14;
       border: 1px solid rgba(0, 243, 255, 0.4);
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 12px;
       color: #ffffff;
       font-size: 0.8rem;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       outline: none;
+    }
+
+    .neon-input:focus {
+      border-color: #00f3ff;
+      box-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
     }
 
     .neon-btn {
       background: rgba(0, 243, 255, 0.1);
       color: #00f3ff;
       border: 1px solid #00f3ff;
-      padding: 10px;
+      padding: 12px;
       border-radius: 8px;
       font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
+      transition: all 0.2s;
     }
+
+    .neon-btn:hover { background: rgba(0, 243, 255, 0.25); }
 
     .neon-btn-secondary {
       background: rgba(255, 0, 85, 0.1);
       color: #ff0055;
       border: 1px solid #ff0055;
-      padding: 10px;
+      padding: 12px;
       border-radius: 8px;
       font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
+      transition: all 0.2s;
     }
+
+    .neon-btn-secondary:hover { background: rgba(255, 0, 85, 0.25); }
 
     /* TITULOS DE SECCIÓN */
     .section-header {
@@ -216,8 +256,8 @@
 
     .section-title { font-size: 0.8rem; color: #ff0055; letter-spacing: 1px; }
 
-    /* LISTAS DE CANCIONES Y PLAYLISTS */
-    .track-list, .playlist-grid { list-style: none; }
+    /* LISTAS Y ELEMENTOS */
+    .track-list { list-style: none; }
 
     .track-item {
       display: flex;
@@ -232,11 +272,9 @@
     }
 
     .track-item:hover { border-color: rgba(0, 243, 255, 0.4); }
-
     .track-meta { flex: 1; overflow: hidden; margin-right: 8px; cursor: pointer; }
     .track-name { color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .track-artist-sub { color: rgba(0, 243, 255, 0.6); font-size: 0.6rem; }
-
     .track-actions { display: flex; gap: 6px; }
 
     .action-btn {
@@ -251,7 +289,7 @@
 
     .action-btn.danger { border-color: #ff0055; color: #ff0055; }
 
-    /* TARJETAS DE PLAYLISTS */
+    /* PLAYLIST CARDS */
     .playlist-card-item {
       background: rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(0, 243, 255, 0.2);
@@ -280,7 +318,7 @@
       background: rgba(5, 5, 12, 0.9);
     }
 
-    canvas { width: 100%; height: 100%; display: block; }
+    #visualizer { width: 100%; height: 100%; display: block; }
 
     .eq-container {
       background: rgba(0, 0, 0, 0.3);
@@ -294,9 +332,9 @@
     .eq-band { flex: 1; display: flex; flex-direction: column; align-items: center; }
     .eq-band label { font-size: 0.55rem; color: #00f3ff; margin-bottom: 2px; }
     .eq-band input[type="range"] { -webkit-appearance: none; width: 100%; background: #12121c; height: 4px; }
-    .eq-band input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #00f3ff; cursor: pointer; }
+    .eq-band input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 100px; height: 10px; border-radius: 50%; background: #00f3ff; cursor: pointer; }
 
-    /* REPRODUCTOR FLOTANTE PERSISTENTE */
+    /* REPRODUCTOR FLOTANTE */
     .floating-player {
       position: fixed;
       bottom: 0;
@@ -313,15 +351,9 @@
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
     }
 
-    .floating-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
+    .floating-info { display: flex; justify-content: space-between; align-items: center; }
     .floating-title { font-size: 0.75rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
     .floating-artist { font-size: 0.6rem; color: rgba(0, 243, 255, 0.7); }
-
     .floating-controls { display: flex; align-items: center; gap: 8px; justify-content: center; }
     .floating-btn { background: transparent; border: 1px solid #00f3ff; color: #00f3ff; border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer; }
 
@@ -329,7 +361,7 @@
     .floating-progress input[type="range"] { flex: 1; -webkit-appearance: none; background: #12121c; height: 3px; }
     .floating-progress input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%; background: #ff0055; cursor: pointer; }
 
-    /* MODAL SELECCIONAR PLAYLIST */
+    /* MODAL */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -352,6 +384,9 @@
 </head>
 <body>
 
+  <!-- CANVAS RUIDO DE TV ANALÓGICA -->
+  <canvas id="tv-static-canvas"></canvas>
+
   <!-- NAVBAR -->
   <header class="navbar" id="app-navbar" style="display: none;">
     <div class="nav-brand" id="nav-brand-title">MusicApp</div>
@@ -367,16 +402,16 @@
 
   <div class="app-container">
 
-    <!-- LOGIN -->
+    <!-- LOGIN / REGISTER (CENTRADO AL ESTAR DESCONECTADO) -->
     <div class="auth-card" id="auth-screen">
-      <h2 style="font-size: 1.1rem; color: #ff0055; margin-bottom: 16px;">SYSTEM//ACCESS</h2>
+      <h2 style="font-size: 1.1rem; color: #ff0055; margin-bottom: 18px; letter-spacing: 2px;">SYSTEM//ACCESS</h2>
       <input type="email" id="auth-email" placeholder="CORREO@CYBER.COM" class="neon-input">
       <input type="password" id="auth-password" placeholder="CONTRASEÑA" class="neon-input">
-      <div style="display: flex; gap: 8px;">
+      <div style="display: flex; gap: 10px; margin-top: 6px;">
         <button id="btn-login" class="neon-btn" style="flex: 1;">LOGIN</button>
         <button id="btn-signup" class="neon-btn-secondary" style="flex: 1;">REGISTRAR</button>
       </div>
-      <p id="auth-status" style="font-size: 0.65rem; color: #ff0055; margin-top: 8px;"></p>
+      <p id="auth-status" style="font-size: 0.65rem; color: #ff0055; margin-top: 12px; min-height: 15px;"></p>
     </div>
 
     <!-- VISTA: MI BIBLIOTECA -->
@@ -459,7 +494,59 @@
   <audio id="audio-player" crossorigin="anonymous"></audio>
 
   <script>
-    // SUPABASE CONFIG
+    // ----------------------------------------------------
+    // GENERADOR DE RUIDO / ESTÁTICA DE TV ANALÓGICA
+    // ----------------------------------------------------
+    const staticCanvas = document.getElementById("tv-static-canvas");
+    const staticCtx = staticCanvas.getContext("2d");
+    let staticAnimationId = null;
+
+    function resizeStaticCanvas() {
+      staticCanvas.width = window.innerWidth / 2; // Escala reducida para estilo pixel/retro
+      staticCanvas.height = window.innerHeight / 2;
+    }
+    window.addEventListener("resize", resizeStaticCanvas);
+    resizeStaticCanvas();
+
+    function generateTVStatic() {
+      const width = staticCanvas.width;
+      const height = staticCanvas.height;
+      const imgData = staticCtx.createImageData(width, height);
+      const buffer = new Uint32Array(imgData.data.buffer);
+      const len = buffer.length;
+
+      for (let i = 0; i < len; i++) {
+        const color = Math.random() * 255 | 0;
+        // BGRa en little-endian para rendimiento óptimo
+        buffer[i] = (255 << 24) | (color << 16) | (color << 8) | color;
+      }
+
+      staticCtx.putImageData(imgData, 0, 0);
+      staticAnimationId = requestAnimationFrame(generateTVStatic);
+    }
+
+    function startTVStatic() {
+      if (!staticAnimationId) {
+        staticCanvas.style.display = "block";
+        generateTVStatic();
+      }
+    }
+
+    function stopTVStatic() {
+      if (staticAnimationId) {
+        cancelAnimationFrame(staticAnimationId);
+        staticAnimationId = null;
+        staticCanvas.style.display = "none";
+      }
+    }
+
+    // Iniciar el ruido al cargar la página (sesión cerrada por defecto)
+    startTVStatic();
+
+
+    // ----------------------------------------------------
+    // SUPABASE CONFIG & LOGIC
+    // ----------------------------------------------------
     const SUPABASE_URL = "https://cwpjjzamawyywfcsnaqo.supabase.co"; 
     const SUPABASE_ANON_KEY = "sb_publishable_NynLf9J-n78PPW7Oaw2W1Q_0_kJjwtl"; 
     
@@ -469,14 +556,14 @@
     } catch (err) { console.error("Error Supabase:", err); }
 
     let currentUser = null;
-    let songs = []; // Biblioteca global
-    let playlists = []; // Array de { id, name, tracks: [] }
-    let currentQueue = []; // Cola de reproducción activa
+    let songs = [];
+    let playlists = [];
+    let currentQueue = [];
     let currentSongIndex = -1;
     let isPlaying = false;
     let trackToAddToPlaylist = null;
 
-    // ELEMENTOS DOM
+    // DOM ELEMENTS
     const appNavbar = document.getElementById("app-navbar");
     const authScreen = document.getElementById("auth-screen");
     const viewLibrary = document.getElementById("view-library");
@@ -485,12 +572,15 @@
     const dropdownMenu = document.getElementById("dropdown-menu");
     const audio = document.getElementById("audio-player");
 
-    // NAVEGACIÓN Y ENRUTADOR
+    // ANIMACIÓN GLITCH & NAVEGACIÓN
     function triggerGlitch(element, cb) {
       element.classList.remove("glitch-effect");
-      void element.offsetWidth;
+      void element.offsetWidth; // Forzar reflow
       element.classList.add("glitch-effect");
-      setTimeout(() => { element.classList.remove("glitch-effect"); if(cb) cb(); }, 400);
+      setTimeout(() => { 
+        element.classList.remove("glitch-effect"); 
+        if(cb) cb(); 
+      }, 400);
     }
 
     function showView(view) {
@@ -516,35 +606,47 @@
     document.getElementById("menu-library").addEventListener("click", () => showView("library"));
     document.getElementById("menu-playlists").addEventListener("click", () => showView("playlists"));
 
-    // AUTH
+    // AUTHENTICATION
     document.getElementById("btn-login").addEventListener("click", async () => {
-      const email = document.getElementById("auth-email").value.trim();
-      const password = document.getElementById("auth-password").value.trim();
-      if (!email || !password) return;
-      triggerGlitch(authScreen);
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) document.getElementById("auth-status").innerText = error.message;
-    });
-
-    document.getElementById("btn-signup").addEventListener("click", async () => {
-      const email = document.getElementById("auth-email").value.trim();
-      const password = document.getElementById("auth-password").value.trim();
-      if (!email || !password) return;
-      const { error } = await supabaseClient.auth.signUp({ email, password });
-      document.getElementById("auth-status").innerText = error ? error.message : "REGISTRO OK! REVISA TU EMAIL.";
-    });
-
-    document.getElementById("menu-logout").addEventListener("click", async () => {
-      triggerGlitch(viewLibrary, async () => {
-        if (supabaseClient) await supabaseClient.auth.signOut();
-        pauseSong();
+      triggerGlitch(authScreen, async () => {
+        const email = document.getElementById("auth-email").value.trim();
+        const password = document.getElementById("auth-password").value.trim();
+        if (!email || !password) {
+          document.getElementById("auth-status").innerText = "INGRESA EMAIL Y CONTRASEÑA";
+          return;
+        }
+        if (supabaseClient) {
+          const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) document.getElementById("auth-status").innerText = error.message;
+        }
       });
     });
 
+    document.getElementById("btn-signup").addEventListener("click", async () => {
+      triggerGlitch(authScreen, async () => {
+        const email = document.getElementById("auth-email").value.trim();
+        const password = document.getElementById("auth-password").value.trim();
+        if (!email || !password) return;
+        if (supabaseClient) {
+          const { error } = await supabaseClient.auth.signUp({ email, password });
+          document.getElementById("auth-status").innerText = error ? error.message : "¡REGISTRO OK! REVISA TU EMAIL.";
+        }
+      });
+    });
+
+    document.getElementById("menu-logout").addEventListener("click", async () => {
+      if (supabaseClient) await supabaseClient.auth.signOut();
+      pauseSong();
+    });
+
+    // LISTENER DE SESIÓN
     if (supabaseClient) {
       supabaseClient.auth.onAuthStateChange((event, session) => {
         if (session) {
           currentUser = session.user;
+          document.body.classList.add("logged-in");
+          stopTVStatic(); // Apagar ruido de TV
+          
           authScreen.style.display = "none";
           appNavbar.style.display = "flex";
           floatingPlayer.style.display = "flex";
@@ -552,6 +654,9 @@
           loadCloudTracks();
         } else {
           currentUser = null;
+          document.body.classList.remove("logged-in");
+          startTVStatic(); // Activar ruido de TV
+
           authScreen.style.display = "block";
           appNavbar.style.display = "none";
           viewLibrary.style.display = "none";
@@ -561,7 +666,7 @@
       });
     }
 
-    // CARGA DE ARCHIVOS Y BIBLIOTECA
+    // CARGA DE CANCIONES
     async function loadCloudTracks() {
       if (!currentUser || !supabaseClient) return;
       const { data } = await supabaseClient.storage.from("audio-tracks").list(currentUser.id, { limit: 100 });
@@ -603,7 +708,7 @@
       });
     }
 
-    // SUBIDA CON JSMEDIATAGS
+    // SUBIDA CON METADATOS
     document.getElementById("file-input").addEventListener("change", async (e) => {
       const files = Array.from(e.target.files);
       for (const file of files) {
@@ -647,9 +752,9 @@
       }
     }
 
-    // GESTIÓN DE PLAYLISTS (CRUD)
+    // GESTIÓN DE PLAYLISTS
     document.getElementById("btn-create-playlist").addEventListener("click", () => {
-      const name = prompt("Nombre de la nueva lista de reproducción:");
+      const name = prompt("Nombre de la nueva lista:");
       if (name && name.trim()) {
         playlists.push({ id: Date.now(), name: name.trim(), tracks: [] });
         renderPlaylistsView();
@@ -693,7 +798,7 @@
     }
 
     function renamePlaylist(index) {
-      const newName = prompt("Nuevo nombre para la lista:", playlists[index].name);
+      const newName = prompt("Nuevo nombre:", playlists[index].name);
       if (newName && newName.trim()) {
         playlists[index].name = newName.trim();
         renderPlaylistsView();
@@ -712,16 +817,16 @@
       renderPlaylistsView();
     }
 
-    // MODAL AÑADIR A PLAYLIST
+    // MODAL PLAYLIST
     function openAddToPlaylistModal(songIndex) {
       trackToAddToPlaylist = songs[songIndex];
       const container = document.getElementById("modal-playlist-options");
       container.innerHTML = "";
 
       if (playlists.length === 0) {
-        container.innerHTML = `<p style="font-size:0.65rem; color:#ff0055;">Crea primero una lista en el menú Playlists.</p>`;
+        container.innerHTML = `<p style="font-size:0.65rem; color:#ff0055;">Crea primero una lista en la sección Playlists.</p>`;
       } else {
-        playlists.forEach((pl, i) => {
+        playlists.forEach((pl) => {
           const btn = document.createElement("button");
           btn.className = "neon-btn";
           btn.style.cssText = "width:100%; margin-bottom:6px; text-align:left;";
@@ -742,7 +847,7 @@
       document.getElementById("modal-add-playlist").style.display = "none";
     });
 
-    // REPRODUCTOR FLOTANTE PERSISTENTE Y AUDIO ENGINE
+    // REPRODUCTOR FLOTANTE
     const btnFloatPlay = document.getElementById("btn-float-play");
     const floatTitle = document.getElementById("float-track-title");
     const floatArtist = document.getElementById("float-track-artist");
