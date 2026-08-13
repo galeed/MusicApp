@@ -8,7 +8,7 @@
   <!-- Fuente Cyberpunk / Modern -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   
   <!-- SDK Cliente Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -33,7 +33,7 @@
       align-items: center;
       position: relative;
       overflow-x: hidden;
-      padding-bottom: 90px;
+      padding-bottom: 120px;
     }
 
     /* RUIDO DE TV ANALÓGICA EN EL FONDO */
@@ -45,15 +45,15 @@
       height: 100vh;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.18; /* Ajusta la intensidad del ruido aquí */
+      opacity: 0.18;
       display: block;
     }
 
     /* Fondo degradado por defecto al iniciar sesión */
     body.logged-in {
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.08) 0%, transparent 40%);
+        radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.12) 0%, transparent 40%);
     }
 
     /* Scanlines CRT */
@@ -126,7 +126,7 @@
       background: rgba(10, 10, 18, 0.95);
       border: 1px solid rgba(0, 243, 255, 0.4);
       border-radius: 8px;
-      width: 200px;
+      width: 220px;
       backdrop-filter: blur(12px);
       z-index: 1001;
     }
@@ -141,12 +141,32 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
     }
 
     .dropdown-item:hover { background: rgba(0, 243, 255, 0.15); color: #00f3ff; }
     .dropdown-item.danger { color: #ff0055; }
     .dropdown-item.danger:hover { background: rgba(255, 0, 85, 0.15); }
+
+    /* SUBMENÚ DE SKINS */
+    .skins-submenu {
+      display: none;
+      background: rgba(5, 5, 10, 0.95);
+      border-top: 1px solid rgba(0, 243, 255, 0.2);
+    }
+    .skins-submenu.show { display: block; }
+    .skin-option {
+      padding: 10px 16px 10px 30px;
+      font-size: 0.68rem;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .skin-option:hover, .skin-option.active {
+      color: #00f3ff;
+      background: rgba(0, 243, 255, 0.1);
+    }
 
     /* CONTENEDOR PRINCIPAL Y CENTRADO DE LOGIN */
     .app-container {
@@ -159,7 +179,7 @@
       flex-direction: column;
     }
 
-    /* ESTADO DESCONECTADO: Centra la auth-card en medio de la pantalla */
+    /* ESTADO DESCONECTADO */
     body:not(.logged-in) .app-container {
       justify-content: center;
       align-items: center;
@@ -178,13 +198,14 @@
       text-align: center;
     }
 
+    /* BIBLIOTECA MÁS CLARA Y LUMINOSA */
     .view-card {
-      background: rgba(10, 10, 18, 0.85); 
-      backdrop-filter: blur(12px); 
-      border: 1px solid rgba(0, 243, 255, 0.3); 
+      background: rgba(20, 24, 40, 0.88); /* Fondo más claro que el original (rgba 10, 10, 18) */
+      backdrop-filter: blur(16px); 
+      border: 1px solid rgba(0, 243, 255, 0.5); 
       border-radius: 16px; 
       padding: 20px;
-      box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+      box-shadow: 0 0 25px rgba(0, 243, 255, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.05);
     }
 
     /* ANIMACIÓN GLITCH DE LOGIN */
@@ -217,7 +238,7 @@
     }
 
     .neon-btn {
-      background: rgba(0, 243, 255, 0.1);
+      background: rgba(0, 243, 255, 0.15);
       color: #00f3ff;
       border: 1px solid #00f3ff;
       padding: 12px;
@@ -228,10 +249,10 @@
       transition: all 0.2s;
     }
 
-    .neon-btn:hover { background: rgba(0, 243, 255, 0.25); }
+    .neon-btn:hover { background: rgba(0, 243, 255, 0.35); }
 
     .neon-btn-secondary {
-      background: rgba(255, 0, 85, 0.1);
+      background: rgba(255, 0, 85, 0.15);
       color: #ff0055;
       border: 1px solid #ff0055;
       padding: 12px;
@@ -242,124 +263,231 @@
       transition: all 0.2s;
     }
 
-    .neon-btn-secondary:hover { background: rgba(255, 0, 85, 0.25); }
+    .neon-btn-secondary:hover { background: rgba(255, 0, 85, 0.35); }
 
-    /* TITULOS DE SECCIÓN */
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 14px;
-      border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+      border-bottom: 1px solid rgba(0, 243, 255, 0.4);
       padding-bottom: 6px;
     }
 
-    .section-title { font-size: 0.8rem; color: #ff0055; letter-spacing: 1px; }
+    .section-title { font-size: 0.8rem; color: #ff0055; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,0,85,0.5); }
 
-    /* LISTAS Y ELEMENTOS */
+    /* LISTAS Y ELEMENTOS DE LA BIBLIOTECA */
     .track-list { list-style: none; }
 
     .track-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 10px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.06); /* Más claro para legibilidad */
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 0.7rem;
+      margin-bottom: 8px;
+      font-size: 0.72rem;
     }
 
-    .track-item:hover { border-color: rgba(0, 243, 255, 0.4); }
+    .track-item:hover { border-color: rgba(0, 243, 255, 0.8); background: rgba(0, 243, 255, 0.12); }
     .track-meta { flex: 1; overflow: hidden; margin-right: 8px; cursor: pointer; }
-    .track-name { color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .track-artist-sub { color: rgba(0, 243, 255, 0.6); font-size: 0.6rem; }
+    .track-name { color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
+    .track-artist-sub { color: #00f3ff; font-size: 0.62rem; opacity: 0.9; }
     .track-actions { display: flex; gap: 6px; }
 
     .action-btn {
       background: transparent;
-      border: 1px solid rgba(0, 243, 255, 0.4);
+      border: 1px solid rgba(0, 243, 255, 0.6);
       color: #00f3ff;
       border-radius: 4px;
-      padding: 2px 6px;
+      padding: 3px 8px;
       font-size: 0.65rem;
       cursor: pointer;
     }
 
     .action-btn.danger { border-color: #ff0055; color: #ff0055; }
 
-    /* PLAYLIST CARDS */
-    .playlist-card-item {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(0, 243, 255, 0.2);
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-
-    .playlist-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .playlist-card-title { font-size: 0.8rem; color: #00f3ff; font-weight: bold; }
-
     /* VISUALIZADOR Y EQ */
     .visualizer-wrapper {
       width: 100%;
       height: 90px;
       margin-bottom: 12px;
-      border: 1px solid rgba(0, 243, 255, 0.4);
+      border: 1px solid rgba(0, 243, 255, 0.5);
       border-radius: 10px;
       overflow: hidden;
-      background: rgba(5, 5, 12, 0.9);
+      background: rgba(10, 14, 25, 0.95);
     }
 
     #visualizer { width: 100%; height: 100%; display: block; }
 
     .eq-container {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(0, 243, 255, 0.2);
+      background: rgba(10, 15, 30, 0.6);
+      border: 1px solid rgba(0, 243, 255, 0.3);
       border-radius: 10px;
       padding: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .eq-sliders { display: flex; justify-content: space-between; gap: 8px; }
     .eq-band { flex: 1; display: flex; flex-direction: column; align-items: center; }
     .eq-band label { font-size: 0.55rem; color: #00f3ff; margin-bottom: 2px; }
     .eq-band input[type="range"] { -webkit-appearance: none; width: 100%; background: #12121c; height: 4px; }
-    .eq-band input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 100px; height: 10px; border-radius: 50%; background: #00f3ff; cursor: pointer; }
+    .eq-band input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #00f3ff; cursor: pointer; }
 
-    /* REPRODUCTOR FLOTANTE */
+    /* ==================================================== */
+    /* ESTILOS Y SKINS DEL REPRODUCTOR FLOTANTE PERSISTENTE */
+    /* ==================================================== */
+    
     .floating-player {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
+      z-index: 2000;
+      transition: all 0.3s ease;
+    }
+
+    /* --- SKIN 1: CLÁSICO --- */
+    .floating-player.skin-classic {
       background: rgba(8, 8, 14, 0.95);
       border-top: 1px solid rgba(0, 243, 255, 0.4);
       backdrop-filter: blur(15px);
-      padding: 10px 16px;
-      z-index: 2000;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      padding: 12px 18px;
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
     }
+    .skin-classic .player-inner { display: flex; flex-direction: column; gap: 6px; }
+    .skin-classic .floating-info { display: flex; justify-content: space-between; align-items: center; }
+    .skin-classic .floating-title { font-size: 0.75rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    .skin-classic .floating-artist { font-size: 0.6rem; color: rgba(0, 243, 255, 0.7); }
+    .skin-classic .floating-controls { display: flex; align-items: center; gap: 8px; justify-content: center; }
+    .skin-classic .floating-btn { background: transparent; border: 1px solid #00f3ff; color: #00f3ff; border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer; }
+    .skin-classic .floating-progress { display: flex; align-items: center; gap: 8px; font-size: 0.55rem; color: #00f3ff; }
+    .skin-classic .floating-progress input[type="range"] { flex: 1; -webkit-appearance: none; background: #12121c; height: 3px; }
+    .skin-classic .floating-progress input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%; background: #ff0055; cursor: pointer; }
 
-    .floating-info { display: flex; justify-content: space-between; align-items: center; }
-    .floating-title { font-size: 0.75rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
-    .floating-artist { font-size: 0.6rem; color: rgba(0, 243, 255, 0.7); }
-    .floating-controls { display: flex; align-items: center; gap: 8px; justify-content: center; }
-    .floating-btn { background: transparent; border: 1px solid #00f3ff; color: #00f3ff; border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer; }
+    /* --- SKIN 2: MINI COMPONENTE SONY CYBERPUNK --- */
+    .floating-player.skin-sony {
+      background: linear-gradient(180deg, #181922 0%, #0b0c10 100%);
+      border-top: 3px solid #ff0055;
+      box-shadow: 0 -8px 25px rgba(255, 0, 85, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+      padding: 12px 16px;
+    }
+    .skin-sony .player-inner {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #12131a;
+      border: 2px solid #2a2c3d;
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+    }
+    .skin-sony .sony-brand {
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: #a0a5c0;
+      letter-spacing: 3px;
+      text-align: center;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .skin-sony .sony-screen {
+      background: #04080f;
+      border: 1px solid #00f3ff;
+      border-radius: 6px;
+      padding: 8px;
+      font-family: 'Share Tech Mono', monospace;
+      color: #00f3ff;
+      margin-bottom: 8px;
+      box-shadow: inset 0 0 8px rgba(0, 243, 255, 0.3);
+    }
+    .skin-sony .floating-title { font-size: 0.75rem; color: #fff; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .skin-sony .floating-artist { font-size: 0.62rem; color: #ff0055; }
+    .skin-sony .sony-album { font-size: 0.58rem; color: #00f3ff; opacity: 0.8; }
+    .skin-sony .floating-controls { display: flex; justify-content: center; gap: 8px; margin-top: 6px; }
+    .skin-sony .floating-btn {
+      background: #222533;
+      border: 1px solid #3d415c;
+      color: #00f3ff;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #111219;
+    }
+    .skin-sony .floating-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #111219; }
+    .skin-sony .floating-btn.btn-stop { color: #ff0055; border-color: #ff0055; }
+    .skin-sony .floating-progress { display: flex; align-items: center; gap: 8px; font-size: 0.55rem; color: #00f3ff; margin-top: 4px; }
+    .skin-sony .floating-progress input[type="range"] { flex: 1; -webkit-appearance: none; background: #000; height: 4px; border: 1px solid #00f3ff; }
+    .skin-sony .floating-progress input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: #ff0055; cursor: pointer; }
 
-    .floating-progress { display: flex; align-items: center; gap: 8px; font-size: 0.55rem; color: #00f3ff; }
-    .floating-progress input[type="range"] { flex: 1; -webkit-appearance: none; background: #12121c; height: 3px; }
-    .floating-progress input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%; background: #ff0055; cursor: pointer; }
+    /* --- SKIN 3: WALKMAN SONY CYBERPUNK --- */
+    .floating-player.skin-walkman {
+      background: linear-gradient(180deg, #2b2e3a 0%, #15171e 100%);
+      border-top: 4px solid #00f3ff;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.9);
+      padding: 10px 14px;
+    }
+    .skin-walkman .player-inner {
+      max-width: 440px;
+      margin: 0 auto;
+      background: #1e212b;
+      border: 2px solid #3a3f52;
+      border-radius: 10px;
+      padding: 10px;
+      position: relative;
+    }
+    .skin-walkman .walkman-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+    }
+    .skin-walkman .walkman-logo { font-size: 0.7rem; font-weight: 900; color: #ff0055; letter-spacing: 2px; }
+    .skin-walkman .walkman-window {
+      background: #090a0f;
+      border: 2px solid #34384a;
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .skin-walkman .walkman-window::before {
+      content: "WM-CYBER";
+      position: absolute;
+      right: 5px; bottom: 2px;
+      font-size: 0.45rem;
+      color: rgba(255,255,255,0.2);
+    }
+    .skin-walkman .floating-title { font-size: 0.7rem; color: #00f3ff; font-family: 'Share Tech Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .skin-walkman .floating-artist { font-size: 0.6rem; color: #fff; font-family: 'Share Tech Mono', monospace; }
+    .skin-walkman .walkman-controls {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .skin-walkman .floating-btn {
+      background: linear-gradient(180deg, #42475c 0%, #252834 100%);
+      border: 1px solid #565d78;
+      color: #fff;
+      border-radius: 3px;
+      padding: 8px 2px;
+      font-size: 0.65rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+    .skin-walkman .floating-btn:active { background: #181a22; transform: translateY(1px); }
+    .skin-walkman .floating-btn.btn-stop { background: linear-gradient(180deg, #aa1133 0%, #550011 100%); border-color: #ff0055; }
+    .skin-walkman .floating-progress { display: flex; align-items: center; gap: 6px; font-size: 0.55rem; color: #fff; margin-top: 6px; }
+    .skin-walkman .floating-progress input[type="range"] { flex: 1; -webkit-appearance: none; background: #000; height: 3px; }
+    .skin-walkman .floating-progress input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 8px; background: #00f3ff; cursor: pointer; }
 
     /* MODAL */
     .modal-overlay {
@@ -395,6 +523,18 @@
       <div class="dropdown-menu" id="dropdown-menu">
         <div class="dropdown-item" id="menu-library">📂 Mi Biblioteca</div>
         <div class="dropdown-item" id="menu-playlists">🎵 Listas de reproducción</div>
+        
+        <!-- OPCIÓN SKINS Y SU SUBMENÚ -->
+        <div class="dropdown-item" id="menu-skins-toggle">
+          <span>🎨 Skins</span>
+          <span style="font-size:0.6rem;">▼</span>
+        </div>
+        <div class="skins-submenu" id="skins-submenu">
+          <div class="skin-option active" data-skin="classic">1.- Clásico</div>
+          <div class="skin-option" data-skin="sony">2.- Mini componente Sony</div>
+          <div class="skin-option" data-skin="walkman">3.- Walkman</div>
+        </div>
+
         <div class="dropdown-item danger" id="menu-logout">🚪 Cerrar sesión</div>
       </div>
     </div>
@@ -402,7 +542,7 @@
 
   <div class="app-container">
 
-    <!-- LOGIN / REGISTER (CENTRADO AL ESTAR DESCONECTADO) -->
+    <!-- LOGIN / REGISTER -->
     <div class="auth-card" id="auth-screen">
       <h2 style="font-size: 1.1rem; color: #ff0055; margin-bottom: 18px; letter-spacing: 2px;">SYSTEM//ACCESS</h2>
       <input type="email" id="auth-email" placeholder="CORREO@CYBER.COM" class="neon-input">
@@ -414,7 +554,7 @@
       <p id="auth-status" style="font-size: 0.65rem; color: #ff0055; margin-top: 12px; min-height: 15px;"></p>
     </div>
 
-    <!-- VISTA: MI BIBLIOTECA -->
+    <!-- VISTA: MI BIBLIOTECA (FONDO MÁS CLARO) -->
     <div class="view-card" id="view-library" style="display: none;">
       <div class="visualizer-wrapper">
         <canvas id="visualizer"></canvas>
@@ -462,23 +602,10 @@
 
   </div>
 
-  <!-- REPRODUCTOR FLOTANTE PERSISTENTE -->
-  <div class="floating-player" id="floating-player" style="display: none;">
-    <div class="floating-info">
-      <div>
-        <div class="floating-title" id="float-track-title">SELECCIONA PISTA</div>
-        <div class="floating-artist" id="float-track-artist">SYSTEM//READY</div>
-      </div>
-      <div class="floating-controls">
-        <button class="floating-btn" id="btn-float-prev">⏮</button>
-        <button class="floating-btn" id="btn-float-play">▶</button>
-        <button class="floating-btn" id="btn-float-next">⏭</button>
-      </div>
-    </div>
-    <div class="floating-progress">
-      <span id="float-current-time">0:00</span>
-      <input type="range" id="float-progress-bar" value="0" min="0" step="0.1">
-      <span id="float-total-duration">0:00</span>
+  <!-- REPRODUCTOR FLOTANTE ADAPTABLE POR SKINS -->
+  <div class="floating-player skin-classic" id="floating-player" style="display: none;">
+    <div class="player-inner" id="player-inner-content">
+      <!-- Se inyecta dinámicamente vía JS según el Skin activo -->
     </div>
   </div>
 
@@ -502,7 +629,7 @@
     let staticAnimationId = null;
 
     function resizeStaticCanvas() {
-      staticCanvas.width = window.innerWidth / 2; // Escala reducida para estilo pixel/retro
+      staticCanvas.width = window.innerWidth / 2;
       staticCanvas.height = window.innerHeight / 2;
     }
     window.addEventListener("resize", resizeStaticCanvas);
@@ -517,7 +644,6 @@
 
       for (let i = 0; i < len; i++) {
         const color = Math.random() * 255 | 0;
-        // BGRa en little-endian para rendimiento óptimo
         buffer[i] = (255 << 24) | (color << 16) | (color << 8) | color;
       }
 
@@ -540,9 +666,7 @@
       }
     }
 
-    // Iniciar el ruido al cargar la página (sesión cerrada por defecto)
     startTVStatic();
-
 
     // ----------------------------------------------------
     // SUPABASE CONFIG & LOGIC
@@ -561,7 +685,7 @@
     let currentQueue = [];
     let currentSongIndex = -1;
     let isPlaying = false;
-    let trackToAddToPlaylist = null;
+    let currentSkin = "classic"; // classic, sony, walkman
 
     // DOM ELEMENTS
     const appNavbar = document.getElementById("app-navbar");
@@ -569,13 +693,15 @@
     const viewLibrary = document.getElementById("view-library");
     const viewPlaylists = document.getElementById("view-playlists");
     const floatingPlayer = document.getElementById("floating-player");
+    const playerInnerContent = document.getElementById("player-inner-content");
     const dropdownMenu = document.getElementById("dropdown-menu");
+    const skinsSubmenu = document.getElementById("skins-submenu");
     const audio = document.getElementById("audio-player");
 
     // ANIMACIÓN GLITCH & NAVEGACIÓN
     function triggerGlitch(element, cb) {
       element.classList.remove("glitch-effect");
-      void element.offsetWidth; // Forzar reflow
+      void element.offsetWidth;
       element.classList.add("glitch-effect");
       setTimeout(() => { 
         element.classList.remove("glitch-effect"); 
@@ -597,11 +723,31 @@
       }
     }
 
+    // MENU & SKINS TOGGLES
     document.getElementById("btn-toggle-menu").addEventListener("click", (e) => {
       e.stopPropagation();
       dropdownMenu.classList.toggle("show");
     });
-    document.addEventListener("click", () => dropdownMenu.classList.remove("show"));
+
+    document.getElementById("menu-skins-toggle").addEventListener("click", (e) => {
+      e.stopPropagation();
+      skinsSubmenu.classList.toggle("show");
+    });
+
+    document.addEventListener("click", () => {
+      dropdownMenu.classList.remove("show");
+      skinsSubmenu.classList.remove("show");
+    });
+
+    document.querySelectorAll(".skin-option").forEach(opt => {
+      opt.addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.querySelectorAll(".skin-option").forEach(o => o.classList.remove("active"));
+        opt.classList.add("active");
+        currentSkin = opt.getAttribute("data-skin");
+        applySkin(currentSkin);
+      });
+    });
 
     document.getElementById("menu-library").addEventListener("click", () => showView("library"));
     document.getElementById("menu-playlists").addEventListener("click", () => showView("playlists"));
@@ -636,7 +782,7 @@
 
     document.getElementById("menu-logout").addEventListener("click", async () => {
       if (supabaseClient) await supabaseClient.auth.signOut();
-      pauseSong();
+      stopSong();
     });
 
     // LISTENER DE SESIÓN
@@ -645,17 +791,18 @@
         if (session) {
           currentUser = session.user;
           document.body.classList.add("logged-in");
-          stopTVStatic(); // Apagar ruido de TV
+          stopTVStatic();
           
           authScreen.style.display = "none";
           appNavbar.style.display = "flex";
-          floatingPlayer.style.display = "flex";
+          floatingPlayer.style.display = "block";
+          applySkin(currentSkin);
           showView("library");
           loadCloudTracks();
         } else {
           currentUser = null;
           document.body.classList.remove("logged-in");
-          startTVStatic(); // Activar ruido de TV
+          startTVStatic();
 
           authScreen.style.display = "block";
           appNavbar.style.display = "none";
@@ -680,6 +827,7 @@
           fileNameOnServer: filePath,
           title: file.name.replace(/^\d+_/, "").replace(/\.[^/.]+$/, "").replace(/_/g, " "),
           artist: "CLOUD//TRACK",
+          album: "CYBER AUDIO",
           src: publicUrlData.publicUrl
         };
       });
@@ -715,6 +863,7 @@
         document.getElementById("upload-status").innerText = `SUBIENDO: ${file.name}...`;
         let title = file.name.replace(/\.[^/.]+$/, "");
         let artist = "ARTISTA DESCONOCIDO";
+        let album = "CYBER ALBUM";
 
         try {
           await new Promise((resolve) => {
@@ -722,6 +871,7 @@
               onSuccess: (tag) => {
                 if (tag.tags.title) title = tag.tags.title;
                 if (tag.tags.artist) artist = tag.tags.artist;
+                if (tag.tags.album) album = tag.tags.album;
                 resolve();
               },
               onError: () => resolve()
@@ -735,7 +885,7 @@
         const { error } = await supabaseClient.storage.from("audio-tracks").upload(filePath, file);
         if (!error) {
           const { data } = supabaseClient.storage.from("audio-tracks").getPublicUrl(filePath);
-          songs.push({ id: filePath, fileNameOnServer: filePath, title, artist, src: data.publicUrl });
+          songs.push({ id: filePath, fileNameOnServer: filePath, title, artist, album, src: data.publicUrl });
         }
       }
       document.getElementById("upload-status").innerText = "¡SUBIDA COMPLETADA!";
@@ -773,6 +923,7 @@
       playlists.forEach((pl, plIndex) => {
         const div = document.createElement("div");
         div.className = "playlist-card-item";
+        div.style.cssText = "background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 10px; padding: 12px; margin-bottom: 10px;";
         
         let tracksHTML = pl.tracks.map((t, tIndex) => `
           <div class="track-item" style="margin-bottom:4px;">
@@ -784,8 +935,8 @@
         `).join("");
 
         div.innerHTML = `
-          <div class="playlist-card-header">
-            <span class="playlist-card-title">🎵 ${pl.name} (${pl.tracks.length})</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size: 0.8rem; color: #00f3ff; font-weight: bold;">🎵 ${pl.name} (${pl.tracks.length})</span>
             <div>
               <button class="action-btn" onclick="renamePlaylist(${plIndex})">✏️</button>
               <button class="action-btn danger" onclick="deletePlaylist(${plIndex})">🗑️</button>
@@ -819,7 +970,7 @@
 
     // MODAL PLAYLIST
     function openAddToPlaylistModal(songIndex) {
-      trackToAddToPlaylist = songs[songIndex];
+      const trackToAddToPlaylist = songs[songIndex];
       const container = document.getElementById("modal-playlist-options");
       container.innerHTML = "";
 
@@ -847,13 +998,125 @@
       document.getElementById("modal-add-playlist").style.display = "none";
     });
 
-    // REPRODUCTOR FLOTANTE
-    const btnFloatPlay = document.getElementById("btn-float-play");
-    const floatTitle = document.getElementById("float-track-title");
-    const floatArtist = document.getElementById("float-track-artist");
-    const floatProgressBar = document.getElementById("float-progress-bar");
-    const floatCurrentTime = document.getElementById("float-current-time");
-    const floatTotalDuration = document.getElementById("float-total-duration");
+    // ----------------------------------------------------
+    // PLANTILLAS Y RENDERIZADO DE SKINS
+    // ----------------------------------------------------
+    function applySkin(skinName) {
+      floatingPlayer.className = `floating-player skin-${skinName}`;
+
+      if (skinName === "classic") {
+        playerInnerContent.innerHTML = `
+          <div class="floating-info">
+            <div>
+              <div class="floating-title" id="float-track-title">SELECCIONA PISTA</div>
+              <div class="floating-artist" id="float-track-artist">SYSTEM//READY</div>
+            </div>
+            <div class="floating-controls">
+              <button class="floating-btn" id="btn-float-prev">⏮</button>
+              <button class="floating-btn" id="btn-float-play">▶</button>
+              <button class="floating-btn" id="btn-float-next">⏭</button>
+            </div>
+          </div>
+          <div class="floating-progress">
+            <span id="float-current-time">0:00</span>
+            <input type="range" id="float-progress-bar" value="0" min="0" step="0.1">
+            <span id="float-total-duration">0:00</span>
+          </div>
+        `;
+      } else if (skinName === "sony") {
+        playerInnerContent.innerHTML = `
+          <div class="sony-brand">SONY CYBER-SYSTEM X1</div>
+          <div class="sony-screen">
+            <div class="floating-title" id="float-track-title">SELECCIONA PISTA</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+              <div class="floating-artist" id="float-track-artist">ARTISTA: N/A</div>
+              <div class="sony-album" id="float-track-album">ÁLBUM: SYSTEM</div>
+            </div>
+          </div>
+          <div class="floating-controls">
+            <button class="floating-btn" id="btn-float-prev">⏮ REV</button>
+            <button class="floating-btn" id="btn-float-play">▶ PLAY</button>
+            <button class="floating-btn btn-stop" id="btn-float-stop">⏹ STOP</button>
+            <button class="floating-btn" id="btn-float-next">⏭ FWD</button>
+          </div>
+          <div class="floating-progress">
+            <span id="float-current-time">0:00</span>
+            <input type="range" id="float-progress-bar" value="0" min="0" step="0.1">
+            <span id="float-total-duration">0:00</span>
+          </div>
+        `;
+      } else if (skinName === "walkman") {
+        playerInnerContent.innerHTML = `
+          <div class="walkman-header">
+            <span class="walkman-logo">SONY WALKMAN</span>
+            <span style="font-size:0.5rem; color:#00f3ff;">AVLS // AUTO REVERSE</span>
+          </div>
+          <div class="walkman-window">
+            <div class="floating-title" id="float-track-title">SELECCIONA PISTA</div>
+            <div class="floating-artist" id="float-track-artist">SYSTEM READY</div>
+          </div>
+          <div class="walkman-controls">
+            <button class="floating-btn" id="btn-float-play">▶ PLAY</button>
+            <button class="floating-btn" id="btn-float-pause">⏸ PAUSE</button>
+            <button class="floating-btn btn-stop" id="btn-float-stop">⏹ EJECT</button>
+            <button class="floating-btn" id="btn-float-prev">◄◄ REW</button>
+            <button class="floating-btn" id="btn-float-next">►► FF</button>
+          </div>
+          <div class="floating-progress">
+            <span id="float-current-time">0:00</span>
+            <input type="range" id="float-progress-bar" value="0" min="0" step="0.1">
+            <span id="float-total-duration">0:00</span>
+          </div>
+        `;
+      }
+
+      bindPlayerControls();
+      updatePlayerUI();
+    }
+
+    // BINDING DINÁMICO DE CONTROLES DEL REPRODUCTOR
+    function bindPlayerControls() {
+      const btnPlay = document.getElementById("btn-float-play");
+      const btnPause = document.getElementById("btn-float-pause");
+      const btnStop = document.getElementById("btn-float-stop");
+      const btnNext = document.getElementById("btn-float-next");
+      const btnPrev = document.getElementById("btn-float-prev");
+      const progressBar = document.getElementById("float-progress-bar");
+
+      if (btnPlay) {
+        btnPlay.onclick = () => {
+          if (currentSongIndex === -1 && songs.length > 0) playQueue(songs, 0);
+          else isPlaying ? pauseSong() : playSong();
+        };
+      }
+
+      if (btnPause) btnPause.onclick = () => pauseSong();
+      if (btnStop) btnStop.onclick = () => stopSong();
+
+      if (btnNext) {
+        btnNext.onclick = () => {
+          if (currentQueue.length === 0) return;
+          currentSongIndex = (currentSongIndex + 1) % currentQueue.length;
+          loadSong(currentQueue[currentSongIndex]);
+          playSong();
+        };
+      }
+
+      if (btnPrev) {
+        btnPrev.onclick = () => {
+          if (currentQueue.length === 0) return;
+          currentSongIndex = (currentSongIndex - 1 + currentQueue.length) % currentQueue.length;
+          loadSong(currentQueue[currentSongIndex]);
+          playSong();
+        };
+      }
+
+      if (progressBar) {
+        progressBar.oninput = () => {
+          if (audio.duration) audio.currentTime = (progressBar.value / 100) * audio.duration;
+        };
+      }
+    }
 
     function playQueue(queue, index) {
       currentQueue = queue;
@@ -864,10 +1127,27 @@
 
     function loadSong(song) {
       if (!song) return;
-      floatTitle.innerText = song.title;
-      floatArtist.innerText = song.artist;
       audio.src = song.src;
       audio.load();
+      updatePlayerUI();
+    }
+
+    function updatePlayerUI() {
+      const song = currentQueue[currentSongIndex];
+      const floatTitle = document.getElementById("float-track-title");
+      const floatArtist = document.getElementById("float-track-artist");
+      const floatAlbum = document.getElementById("float-track-album");
+      const btnPlay = document.getElementById("btn-float-play");
+
+      if (song) {
+        if (floatTitle) floatTitle.innerText = song.title;
+        if (floatArtist) floatArtist.innerText = (currentSkin === "sony" ? "ARTISTA: " : "") + song.artist;
+        if (floatAlbum) floatAlbum.innerText = "ÁLBUM: " + (song.album || "CYBER ALBUM");
+      }
+
+      if (btnPlay) {
+        btnPlay.innerText = isPlaying ? (currentSkin === "classic" ? "⏸" : "⏸ PAUSE") : (currentSkin === "classic" ? "▶" : "▶ PLAY");
+      }
     }
 
     function playSong() {
@@ -875,52 +1155,41 @@
       if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
       audio.play().then(() => {
         isPlaying = true;
-        btnFloatPlay.innerText = "⏸";
+        updatePlayerUI();
       }).catch(() => {
         isPlaying = false;
-        btnFloatPlay.innerText = "▶";
+        updatePlayerUI();
       });
     }
 
     function pauseSong() {
       isPlaying = false;
-      btnFloatPlay.innerText = "▶";
       audio.pause();
+      updatePlayerUI();
     }
 
-    btnFloatPlay.addEventListener("click", () => {
-      if (currentSongIndex === -1 && songs.length > 0) playQueue(songs, 0);
-      else isPlaying ? pauseSong() : playSong();
-    });
-
-    document.getElementById("btn-float-next").addEventListener("click", () => {
-      if (currentQueue.length === 0) return;
-      currentSongIndex = (currentSongIndex + 1) % currentQueue.length;
-      loadSong(currentQueue[currentSongIndex]);
-      playSong();
-    });
-
-    document.getElementById("btn-float-prev").addEventListener("click", () => {
-      if (currentQueue.length === 0) return;
-      currentSongIndex = (currentSongIndex - 1 + currentQueue.length) % currentQueue.length;
-      loadSong(currentQueue[currentSongIndex]);
-      playSong();
-    });
+    function stopSong() {
+      isPlaying = false;
+      audio.pause();
+      audio.currentTime = 0;
+      updatePlayerUI();
+    }
 
     audio.addEventListener("timeupdate", () => {
+      const progressBar = document.getElementById("float-progress-bar");
+      const currentTimeEl = document.getElementById("float-current-time");
+      const totalDurationEl = document.getElementById("float-total-duration");
+
       if (audio.duration) {
-        floatProgressBar.value = (audio.currentTime / audio.duration) * 100;
-        floatCurrentTime.innerText = formatTime(audio.currentTime);
-        floatTotalDuration.innerText = formatTime(audio.duration);
+        if (progressBar) progressBar.value = (audio.currentTime / audio.duration) * 100;
+        if (currentTimeEl) currentTimeEl.innerText = formatTime(audio.currentTime);
+        if (totalDurationEl) totalDurationEl.innerText = formatTime(audio.duration);
       }
     });
 
-    floatProgressBar.addEventListener("input", () => {
-      if (audio.duration) audio.currentTime = (floatProgressBar.value / 100) * audio.duration;
-    });
-
     audio.addEventListener("ended", () => {
-      document.getElementById("btn-float-next").click();
+      const btnNext = document.getElementById("btn-float-next");
+      if (btnNext) btnNext.click();
     });
 
     function formatTime(s) {
@@ -929,7 +1198,7 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // WEB AUDIO API Y VISUALIZADOR
+    // WEB AUDIO API Y ESPECTROGRAMA ARCOÍRIS
     const canvas = document.getElementById("visualizer");
     const canvasCtx = canvas.getContext("2d");
     let audioCtx, analyser, sourceNode, lowFilter, midFilter, highFilter, audioGraphInitialized = false;
@@ -989,10 +1258,24 @@
 
       for (let i = 0; i < bufferLength; i++) {
         const barHeight = (dataArray[i] / 255) * height * 0.85;
-        const gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
-        gradient.addColorStop(0, "#00f3ff");
-        gradient.addColorStop(0.7, "#ff0055");
-        gradient.addColorStop(1, "#ffffff");
+
+        let gradient;
+        if (currentSkin === "sony") {
+          // DEGRADADO ARCOÍRIS PARA EL MINI COMPONENTE SONY
+          gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
+          gradient.addColorStop(0.0, "#ff0000"); // Rojo
+          gradient.addColorStop(0.2, "#ff7f00"); // Naranja
+          gradient.addColorStop(0.4, "#ffff00"); // Amarillo
+          gradient.addColorStop(0.6, "#00ff00"); // Verde
+          gradient.addColorStop(0.8, "#0000ff"); // Azul
+          gradient.addColorStop(1.0, "#8b00ff"); // Violeta
+        } else {
+          // DEGRADADO CYBERPUNK ESTÁNDAR
+          gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
+          gradient.addColorStop(0, "#00f3ff");
+          gradient.addColorStop(0.7, "#ff0055");
+          gradient.addColorStop(1, "#ffffff");
+        }
 
         canvasCtx.fillStyle = gradient;
         canvasCtx.fillRect(x, height - barHeight, barWidth - 3, barHeight);
