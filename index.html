@@ -33,7 +33,7 @@
       align-items: center;
       position: relative;
       overflow-x: hidden;
-      padding-bottom: 120px;
+      padding-bottom: 90px;
     }
 
     /* RUIDO DE TV ANALÓGICA EN EL FONDO */
@@ -49,7 +49,7 @@
       display: block;
     }
 
-    /* Fondo degradado por defecto al iniciar sesión */
+    /* Fondo degradado al iniciar sesión */
     body.logged-in {
       background-image: 
         radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.12) 0%, transparent 40%),
@@ -168,10 +168,10 @@
       background: rgba(0, 243, 255, 0.1);
     }
 
-    /* CONTENEDOR PRINCIPAL Y CENTRADO DE LOGIN */
+    /* CONTENEDOR PRINCIPAL */
     .app-container {
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
       padding: 20px 16px;
       z-index: 10;
       flex: 1;
@@ -198,9 +198,9 @@
       text-align: center;
     }
 
-    /* BIBLIOTECA MÁS CLARA Y LUMINOSA */
+    /* TARJETAS DE VISTAS (BIBLIOTECA / PLAYLISTS) */
     .view-card {
-      background: rgba(20, 24, 40, 0.88); /* Fondo más claro que el original (rgba 10, 10, 18) */
+      background: rgba(20, 24, 40, 0.88);
       backdrop-filter: blur(16px); 
       border: 1px solid rgba(0, 243, 255, 0.5); 
       border-radius: 16px; 
@@ -208,7 +208,7 @@
       box-shadow: 0 0 25px rgba(0, 243, 255, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.05);
     }
 
-    /* ANIMACIÓN GLITCH DE LOGIN */
+    /* ANIMACIÓN GLITCH */
     .glitch-effect { animation: cyberGlitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
 
     @keyframes cyberGlitch {
@@ -276,7 +276,7 @@
 
     .section-title { font-size: 0.8rem; color: #ff0055; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,0,85,0.5); }
 
-    /* LISTAS Y ELEMENTOS DE LA BIBLIOTECA */
+    /* LISTA DE ARCHIVOS */
     .track-list { list-style: none; }
 
     .track-item {
@@ -284,7 +284,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.06); /* Más claro para legibilidad */
+      background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 8px;
       margin-bottom: 8px;
@@ -309,19 +309,150 @@
 
     .action-btn.danger { border-color: #ff0055; color: #ff0055; }
 
-    /* VISUALIZADOR Y EQ */
-    .visualizer-wrapper {
+    /* ==================================================== */
+    /* ESTRUCTURA Y SKINS DEL REPRODUCTOR EN LA BIBLIOTECA  */
+    /* ==================================================== */
+
+    .main-player-container {
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+
+    /* --- SKIN 1: CLÁSICO --- */
+    .main-player-container.skin-classic {
+      background: rgba(10, 14, 25, 0.95);
+      border: 1px solid rgba(0, 243, 255, 0.5);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    }
+    .skin-classic .visualizer-wrapper {
       width: 100%;
       height: 90px;
-      margin-bottom: 12px;
-      border: 1px solid rgba(0, 243, 255, 0.5);
-      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      border-radius: 8px;
       overflow: hidden;
-      background: rgba(10, 14, 25, 0.95);
+      background: rgba(5, 5, 12, 0.9);
     }
+    .skin-classic .info-display { margin-bottom: 10px; }
+    .skin-classic .player-title { font-size: 0.8rem; color: #fff; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .skin-classic .player-artist { font-size: 0.65rem; color: #00f3ff; }
+    .skin-classic .player-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
+    .skin-classic .player-btn { background: transparent; border: 1px solid #00f3ff; color: #00f3ff; border-radius: 6px; padding: 6px 12px; font-size: 0.75rem; cursor: pointer; }
+
+    /* --- SKIN 2: MINI COMPONENTE SONY CYBERPUNK --- */
+    .main-player-container.skin-sony {
+      background: linear-gradient(180deg, #181922 0%, #0b0c10 100%);
+      border: 2px solid #ff0055;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 0 25px rgba(255, 0, 85, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .skin-sony .sony-brand {
+      font-size: 0.7rem;
+      font-weight: 900;
+      color: #a0a5c0;
+      letter-spacing: 3px;
+      text-align: center;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .skin-sony .sony-screen {
+      background: #04080f;
+      border: 1px solid #00f3ff;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      color: #00f3ff;
+      margin-bottom: 10px;
+      box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.3);
+    }
+    .skin-sony .player-title { font-size: 0.8rem; color: #fff; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .skin-sony .player-artist { font-size: 0.65rem; color: #ff0055; }
+    .skin-sony .player-album { font-size: 0.6rem; color: #00f3ff; opacity: 0.8; }
+    .skin-sony .visualizer-wrapper {
+      width: 100%;
+      height: 95px;
+      margin-top: 8px;
+      border-top: 1px dashed rgba(0, 243, 255, 0.4);
+    }
+    .skin-sony .player-controls { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
+    .skin-sony .player-btn {
+      background: #222533;
+      border: 1px solid #3d415c;
+      color: #00f3ff;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #111219;
+    }
+    .skin-sony .player-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #111219; }
+    .skin-sony .player-btn.btn-stop { color: #ff0055; border-color: #ff0055; }
+
+    /* --- SKIN 3: WALKMAN SONY CYBERPUNK --- */
+    .main-player-container.skin-walkman {
+      background: linear-gradient(180deg, #2b2e3a 0%, #15171e 100%);
+      border: 2px solid #00f3ff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 0 25px rgba(0, 243, 255, 0.25);
+    }
+    .skin-walkman .walkman-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+    }
+    .skin-walkman .walkman-logo { font-size: 0.75rem; font-weight: 900; color: #ff0055; letter-spacing: 2px; }
+    .skin-walkman .walkman-window {
+      background: #090a0f;
+      border: 2px solid #34384a;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .skin-walkman .player-title { font-size: 0.75rem; color: #00f3ff; font-family: 'Share Tech Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .skin-walkman .player-artist { font-size: 0.65rem; color: #fff; font-family: 'Share Tech Mono', monospace; }
+    .skin-walkman .visualizer-wrapper {
+      width: 100%;
+      height: 75px;
+      margin-top: 6px;
+      border-top: 1px solid #34384a;
+    }
+    .skin-walkman .player-controls {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .skin-walkman .player-btn {
+      background: linear-gradient(180deg, #42475c 0%, #252834 100%);
+      border: 1px solid #565d78;
+      color: #fff;
+      border-radius: 3px;
+      padding: 8px 2px;
+      font-size: 0.65rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+    .skin-walkman .player-btn:active { background: #181a22; transform: translateY(1px); }
+    .skin-walkman .player-btn.btn-stop { background: linear-gradient(180deg, #aa1133 0%, #550011 100%); border-color: #ff0055; }
+
+    /* BARRAS DE PROGRESO Y TIEMPO */
+    .player-progress { display: flex; align-items: center; gap: 8px; font-size: 0.6rem; color: #00f3ff; }
+    .player-progress input[type="range"] { flex: 1; -webkit-appearance: none; background: #12121c; height: 4px; }
+    .player-progress input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #ff0055; cursor: pointer; }
 
     #visualizer { width: 100%; height: 100%; display: block; }
 
+    /* EQ */
     .eq-container {
       background: rgba(10, 15, 30, 0.6);
       border: 1px solid rgba(0, 243, 255, 0.3);
@@ -335,159 +466,6 @@
     .eq-band label { font-size: 0.55rem; color: #00f3ff; margin-bottom: 2px; }
     .eq-band input[type="range"] { -webkit-appearance: none; width: 100%; background: #12121c; height: 4px; }
     .eq-band input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #00f3ff; cursor: pointer; }
-
-    /* ==================================================== */
-    /* ESTILOS Y SKINS DEL REPRODUCTOR FLOTANTE PERSISTENTE */
-    /* ==================================================== */
-    
-    .floating-player {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      z-index: 2000;
-      transition: all 0.3s ease;
-    }
-
-    /* --- SKIN 1: CLÁSICO --- */
-    .floating-player.skin-classic {
-      background: rgba(8, 8, 14, 0.95);
-      border-top: 1px solid rgba(0, 243, 255, 0.4);
-      backdrop-filter: blur(15px);
-      padding: 12px 18px;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
-    }
-    .skin-classic .player-inner { display: flex; flex-direction: column; gap: 6px; }
-    .skin-classic .floating-info { display: flex; justify-content: space-between; align-items: center; }
-    .skin-classic .floating-title { font-size: 0.75rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
-    .skin-classic .floating-artist { font-size: 0.6rem; color: rgba(0, 243, 255, 0.7); }
-    .skin-classic .floating-controls { display: flex; align-items: center; gap: 8px; justify-content: center; }
-    .skin-classic .floating-btn { background: transparent; border: 1px solid #00f3ff; color: #00f3ff; border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; cursor: pointer; }
-    .skin-classic .floating-progress { display: flex; align-items: center; gap: 8px; font-size: 0.55rem; color: #00f3ff; }
-    .skin-classic .floating-progress input[type="range"] { flex: 1; -webkit-appearance: none; background: #12121c; height: 3px; }
-    .skin-classic .floating-progress input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%; background: #ff0055; cursor: pointer; }
-
-    /* --- SKIN 2: MINI COMPONENTE SONY CYBERPUNK --- */
-    .floating-player.skin-sony {
-      background: linear-gradient(180deg, #181922 0%, #0b0c10 100%);
-      border-top: 3px solid #ff0055;
-      box-shadow: 0 -8px 25px rgba(255, 0, 85, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-      padding: 12px 16px;
-    }
-    .skin-sony .player-inner {
-      max-width: 500px;
-      margin: 0 auto;
-      background: #12131a;
-      border: 2px solid #2a2c3d;
-      border-radius: 12px;
-      padding: 10px;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-    }
-    .skin-sony .sony-brand {
-      font-size: 0.65rem;
-      font-weight: 900;
-      color: #a0a5c0;
-      letter-spacing: 3px;
-      text-align: center;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-    .skin-sony .sony-screen {
-      background: #04080f;
-      border: 1px solid #00f3ff;
-      border-radius: 6px;
-      padding: 8px;
-      font-family: 'Share Tech Mono', monospace;
-      color: #00f3ff;
-      margin-bottom: 8px;
-      box-shadow: inset 0 0 8px rgba(0, 243, 255, 0.3);
-    }
-    .skin-sony .floating-title { font-size: 0.75rem; color: #fff; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .skin-sony .floating-artist { font-size: 0.62rem; color: #ff0055; }
-    .skin-sony .sony-album { font-size: 0.58rem; color: #00f3ff; opacity: 0.8; }
-    .skin-sony .floating-controls { display: flex; justify-content: center; gap: 8px; margin-top: 6px; }
-    .skin-sony .floating-btn {
-      background: #222533;
-      border: 1px solid #3d415c;
-      color: #00f3ff;
-      border-radius: 4px;
-      padding: 6px 12px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      box-shadow: 0 3px 0 #111219;
-    }
-    .skin-sony .floating-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #111219; }
-    .skin-sony .floating-btn.btn-stop { color: #ff0055; border-color: #ff0055; }
-    .skin-sony .floating-progress { display: flex; align-items: center; gap: 8px; font-size: 0.55rem; color: #00f3ff; margin-top: 4px; }
-    .skin-sony .floating-progress input[type="range"] { flex: 1; -webkit-appearance: none; background: #000; height: 4px; border: 1px solid #00f3ff; }
-    .skin-sony .floating-progress input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: #ff0055; cursor: pointer; }
-
-    /* --- SKIN 3: WALKMAN SONY CYBERPUNK --- */
-    .floating-player.skin-walkman {
-      background: linear-gradient(180deg, #2b2e3a 0%, #15171e 100%);
-      border-top: 4px solid #00f3ff;
-      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.9);
-      padding: 10px 14px;
-    }
-    .skin-walkman .player-inner {
-      max-width: 440px;
-      margin: 0 auto;
-      background: #1e212b;
-      border: 2px solid #3a3f52;
-      border-radius: 10px;
-      padding: 10px;
-      position: relative;
-    }
-    .skin-walkman .walkman-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 4px;
-      margin-bottom: 8px;
-    }
-    .skin-walkman .walkman-logo { font-size: 0.7rem; font-weight: 900; color: #ff0055; letter-spacing: 2px; }
-    .skin-walkman .walkman-window {
-      background: #090a0f;
-      border: 2px solid #34384a;
-      border-radius: 6px;
-      padding: 8px;
-      margin-bottom: 8px;
-      position: relative;
-      overflow: hidden;
-    }
-    .skin-walkman .walkman-window::before {
-      content: "WM-CYBER";
-      position: absolute;
-      right: 5px; bottom: 2px;
-      font-size: 0.45rem;
-      color: rgba(255,255,255,0.2);
-    }
-    .skin-walkman .floating-title { font-size: 0.7rem; color: #00f3ff; font-family: 'Share Tech Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .skin-walkman .floating-artist { font-size: 0.6rem; color: #fff; font-family: 'Share Tech Mono', monospace; }
-    .skin-walkman .walkman-controls {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
-      margin-top: 6px;
-    }
-    .skin-walkman .floating-btn {
-      background: linear-gradient(180deg, #42475c 0%, #252834 100%);
-      border: 1px solid #565d78;
-      color: #fff;
-      border-radius: 3px;
-      padding: 8px 2px;
-      font-size: 0.65rem;
-      font-weight: bold;
-      cursor: pointer;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.6);
-    }
-    .skin-walkman .floating-btn:active { background: #181a22; transform: translateY(1px); }
-    .skin-walkman .floating-btn.btn-stop { background: linear-gradient(180deg, #aa1133 0%, #550011 100%); border-color: #ff0055; }
-    .skin-walkman .floating-progress { display: flex; align-items: center; gap: 6px; font-size: 0.55rem; color: #fff; margin-top: 6px; }
-    .skin-walkman .floating-progress input[type="range"] { flex: 1; -webkit-appearance: none; background: #000; height: 3px; }
-    .skin-walkman .floating-progress input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 8px; background: #00f3ff; cursor: pointer; }
 
     /* MODAL */
     .modal-overlay {
@@ -524,7 +502,7 @@
         <div class="dropdown-item" id="menu-library">📂 Mi Biblioteca</div>
         <div class="dropdown-item" id="menu-playlists">🎵 Listas de reproducción</div>
         
-        <!-- OPCIÓN SKINS Y SU SUBMENÚ -->
+        <!-- OPCIÓN SKINS -->
         <div class="dropdown-item" id="menu-skins-toggle">
           <span>🎨 Skins</span>
           <span style="font-size:0.6rem;">▼</span>
@@ -554,12 +532,15 @@
       <p id="auth-status" style="font-size: 0.65rem; color: #ff0055; margin-top: 12px; min-height: 15px;"></p>
     </div>
 
-    <!-- VISTA: MI BIBLIOTECA (FONDO MÁS CLARO) -->
+    <!-- VISTA: MI BIBLIOTECA -->
     <div class="view-card" id="view-library" style="display: none;">
-      <div class="visualizer-wrapper">
-        <canvas id="visualizer"></canvas>
+      
+      <!-- CONTENEDOR DINÁMICO DEL REPRODUCTOR (DONDE SE APLICAN LOS SKINS) -->
+      <div class="main-player-container skin-classic" id="main-player">
+        <!-- El contenido HTML del reproductor se inyecta por JS según el Skin seleccionado -->
       </div>
 
+      <!-- EQUALIZADOR DE 3 BANDAS -->
       <div class="eq-container">
         <div style="font-size: 0.6rem; color: #ff0055; text-align: center; margin-bottom: 6px;">⚡ HARDWARE EQ // 3 BANDAS</div>
         <div class="eq-sliders">
@@ -578,6 +559,7 @@
         </div>
       </div>
 
+      <!-- BOTÓN DE CARGA -->
       <div style="text-align: center; margin-bottom: 14px;">
         <label for="file-input" class="neon-btn-secondary" style="display: block; cursor: pointer;">⚡ SUBIR AUDIO A LA NUBE (.WAV / .FLAC)</label>
         <input type="file" id="file-input" accept="audio/*,.wav,.flac,.mp3" multiple style="display: none;">
@@ -600,13 +582,6 @@
       <div id="playlists-container"></div>
     </div>
 
-  </div>
-
-  <!-- REPRODUCTOR FLOTANTE ADAPTABLE POR SKINS -->
-  <div class="floating-player skin-classic" id="floating-player" style="display: none;">
-    <div class="player-inner" id="player-inner-content">
-      <!-- Se inyecta dinámicamente vía JS según el Skin activo -->
-    </div>
   </div>
 
   <!-- MODAL AGREGAR A PLAYLIST -->
@@ -692,13 +667,12 @@
     const authScreen = document.getElementById("auth-screen");
     const viewLibrary = document.getElementById("view-library");
     const viewPlaylists = document.getElementById("view-playlists");
-    const floatingPlayer = document.getElementById("floating-player");
-    const playerInnerContent = document.getElementById("player-inner-content");
+    const mainPlayer = document.getElementById("main-player");
     const dropdownMenu = document.getElementById("dropdown-menu");
     const skinsSubmenu = document.getElementById("skins-submenu");
     const audio = document.getElementById("audio-player");
 
-    // ANIMACIÓN GLITCH & NAVEGACIÓN
+    // ANIMACIÓN GLITCH Y NAVEGACIÓN ENTRE SECCIONES
     function triggerGlitch(element, cb) {
       element.classList.remove("glitch-effect");
       void element.offsetWidth;
@@ -795,7 +769,6 @@
           
           authScreen.style.display = "none";
           appNavbar.style.display = "flex";
-          floatingPlayer.style.display = "block";
           applySkin(currentSkin);
           showView("library");
           loadCloudTracks();
@@ -808,7 +781,6 @@
           appNavbar.style.display = "none";
           viewLibrary.style.display = "none";
           viewPlaylists.style.display = "none";
-          floatingPlayer.style.display = "none";
         }
       });
     }
@@ -999,89 +971,100 @@
     });
 
     // ----------------------------------------------------
-    // PLANTILLAS Y RENDERIZADO DE SKINS
+    // PLANTILLAS Y RENDERIZADO DE SKINS EN EL REPRODUCTOR
     // ----------------------------------------------------
     function applySkin(skinName) {
-      floatingPlayer.className = `floating-player skin-${skinName}`;
+      mainPlayer.className = `main-player-container skin-${skinName}`;
 
       if (skinName === "classic") {
-        playerInnerContent.innerHTML = `
-          <div class="floating-info">
-            <div>
-              <div class="floating-title" id="float-track-title">SELECCIONA PISTA</div>
-              <div class="floating-artist" id="float-track-artist">SYSTEM//READY</div>
-            </div>
-            <div class="floating-controls">
-              <button class="floating-btn" id="btn-float-prev">⏮</button>
-              <button class="floating-btn" id="btn-float-play">▶</button>
-              <button class="floating-btn" id="btn-float-next">⏭</button>
-            </div>
+        mainPlayer.innerHTML = `
+          <div class="visualizer-wrapper">
+            <canvas id="visualizer"></canvas>
           </div>
-          <div class="floating-progress">
-            <span id="float-current-time">0:00</span>
-            <input type="range" id="float-progress-bar" value="0" min="0" step="0.1">
-            <span id="float-total-duration">0:00</span>
+          <div class="info-display">
+            <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
+            <div class="player-artist" id="player-track-artist">SYSTEM//READY</div>
+          </div>
+          <div class="player-controls">
+            <button class="player-btn" id="btn-player-prev">⏮</button>
+            <button class="player-btn" id="btn-player-play">▶</button>
+            <button class="player-btn" id="btn-player-next">⏭</button>
+          </div>
+          <div class="player-progress">
+            <span id="player-current-time">0:00</span>
+            <input type="range" id="player-progress-bar" value="0" min="0" step="0.1">
+            <span id="player-total-duration">0:00</span>
           </div>
         `;
       } else if (skinName === "sony") {
-        playerInnerContent.innerHTML = `
+        mainPlayer.innerHTML = `
           <div class="sony-brand">SONY CYBER-SYSTEM X1</div>
           <div class="sony-screen">
-            <div class="floating-title" id="float-track-title">SELECCIONA PISTA</div>
+            <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
-              <div class="floating-artist" id="float-track-artist">ARTISTA: N/A</div>
-              <div class="sony-album" id="float-track-album">ÁLBUM: SYSTEM</div>
+              <div class="player-artist" id="player-track-artist">ARTISTA: N/A</div>
+              <div class="player-album" id="player-track-album">ÁLBUM: SYSTEM</div>
+            </div>
+            <div class="visualizer-wrapper">
+              <canvas id="visualizer"></canvas>
             </div>
           </div>
-          <div class="floating-controls">
-            <button class="floating-btn" id="btn-float-prev">⏮ REV</button>
-            <button class="floating-btn" id="btn-float-play">▶ PLAY</button>
-            <button class="floating-btn btn-stop" id="btn-float-stop">⏹ STOP</button>
-            <button class="floating-btn" id="btn-float-next">⏭ FWD</button>
+          <div class="player-controls">
+            <button class="player-btn" id="btn-player-prev">⏮ REV</button>
+            <button class="player-btn" id="btn-player-play">▶ PLAY</button>
+            <button class="player-btn btn-stop" id="btn-player-stop">⏹ STOP</button>
+            <button class="player-btn" id="btn-player-next">⏭ FWD</button>
           </div>
-          <div class="floating-progress">
-            <span id="float-current-time">0:00</span>
-            <input type="range" id="float-progress-bar" value="0" min="0" step="0.1">
-            <span id="float-total-duration">0:00</span>
+          <div class="player-progress">
+            <span id="player-current-time">0:00</span>
+            <input type="range" id="player-progress-bar" value="0" min="0" step="0.1">
+            <span id="player-total-duration">0:00</span>
           </div>
         `;
       } else if (skinName === "walkman") {
-        playerInnerContent.innerHTML = `
+        mainPlayer.innerHTML = `
           <div class="walkman-header">
             <span class="walkman-logo">SONY WALKMAN</span>
             <span style="font-size:0.5rem; color:#00f3ff;">AVLS // AUTO REVERSE</span>
           </div>
           <div class="walkman-window">
-            <div class="floating-title" id="float-track-title">SELECCIONA PISTA</div>
-            <div class="floating-artist" id="float-track-artist">SYSTEM READY</div>
+            <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
+            <div class="player-artist" id="player-track-artist">SYSTEM READY</div>
+            <div class="visualizer-wrapper">
+              <canvas id="visualizer"></canvas>
+            </div>
           </div>
-          <div class="walkman-controls">
-            <button class="floating-btn" id="btn-float-play">▶ PLAY</button>
-            <button class="floating-btn" id="btn-float-pause">⏸ PAUSE</button>
-            <button class="floating-btn btn-stop" id="btn-float-stop">⏹ EJECT</button>
-            <button class="floating-btn" id="btn-float-prev">◄◄ REW</button>
-            <button class="floating-btn" id="btn-float-next">►► FF</button>
+          <div class="player-controls">
+            <button class="player-btn" id="btn-player-play">▶ PLAY</button>
+            <button class="player-btn" id="btn-player-pause">⏸ PAUSE</button>
+            <button class="player-btn btn-stop" id="btn-player-stop">⏹ EJECT</button>
+            <button class="player-btn" id="btn-player-prev">◄◄ REW</button>
+            <button class="player-btn" id="btn-player-next">►► FF</button>
           </div>
-          <div class="floating-progress">
-            <span id="float-current-time">0:00</span>
-            <input type="range" id="float-progress-bar" value="0" min="0" step="0.1">
-            <span id="float-total-duration">0:00</span>
+          <div class="player-progress">
+            <span id="player-current-time">0:00</span>
+            <input type="range" id="player-progress-bar" value="0" min="0" step="0.1">
+            <span id="player-total-duration">0:00</span>
           </div>
         `;
       }
 
       bindPlayerControls();
       updatePlayerUI();
+      
+      // Reiniciar referencias del canvas del espectrograma
+      canvas = document.getElementById("visualizer");
+      if (canvas) canvasCtx = canvas.getContext("2d");
     }
 
-    // BINDING DINÁMICO DE CONTROLES DEL REPRODUCTOR
+    // CONTROLES DEL REPRODUCTOR
     function bindPlayerControls() {
-      const btnPlay = document.getElementById("btn-float-play");
-      const btnPause = document.getElementById("btn-float-pause");
-      const btnStop = document.getElementById("btn-float-stop");
-      const btnNext = document.getElementById("btn-float-next");
-      const btnPrev = document.getElementById("btn-float-prev");
-      const progressBar = document.getElementById("float-progress-bar");
+      const btnPlay = document.getElementById("btn-player-play");
+      const btnPause = document.getElementById("btn-player-pause");
+      const btnStop = document.getElementById("btn-player-stop");
+      const btnNext = document.getElementById("btn-player-next");
+      const btnPrev = document.getElementById("btn-player-prev");
+      const progressBar = document.getElementById("player-progress-bar");
 
       if (btnPlay) {
         btnPlay.onclick = () => {
@@ -1134,15 +1117,15 @@
 
     function updatePlayerUI() {
       const song = currentQueue[currentSongIndex];
-      const floatTitle = document.getElementById("float-track-title");
-      const floatArtist = document.getElementById("float-track-artist");
-      const floatAlbum = document.getElementById("float-track-album");
-      const btnPlay = document.getElementById("btn-float-play");
+      const playerTitle = document.getElementById("player-track-title");
+      const playerArtist = document.getElementById("player-track-artist");
+      const playerAlbum = document.getElementById("player-track-album");
+      const btnPlay = document.getElementById("btn-player-play");
 
       if (song) {
-        if (floatTitle) floatTitle.innerText = song.title;
-        if (floatArtist) floatArtist.innerText = (currentSkin === "sony" ? "ARTISTA: " : "") + song.artist;
-        if (floatAlbum) floatAlbum.innerText = "ÁLBUM: " + (song.album || "CYBER ALBUM");
+        if (playerTitle) playerTitle.innerText = song.title;
+        if (playerArtist) playerArtist.innerText = (currentSkin === "sony" ? "ARTISTA: " : "") + song.artist;
+        if (playerAlbum) playerAlbum.innerText = "ÁLBUM: " + (song.album || "CYBER ALBUM");
       }
 
       if (btnPlay) {
@@ -1176,9 +1159,9 @@
     }
 
     audio.addEventListener("timeupdate", () => {
-      const progressBar = document.getElementById("float-progress-bar");
-      const currentTimeEl = document.getElementById("float-current-time");
-      const totalDurationEl = document.getElementById("float-total-duration");
+      const progressBar = document.getElementById("player-progress-bar");
+      const currentTimeEl = document.getElementById("player-current-time");
+      const totalDurationEl = document.getElementById("player-total-duration");
 
       if (audio.duration) {
         if (progressBar) progressBar.value = (audio.currentTime / audio.duration) * 100;
@@ -1188,7 +1171,7 @@
     });
 
     audio.addEventListener("ended", () => {
-      const btnNext = document.getElementById("btn-float-next");
+      const btnNext = document.getElementById("btn-player-next");
       if (btnNext) btnNext.click();
     });
 
@@ -1199,8 +1182,7 @@
     }
 
     // WEB AUDIO API Y ESPECTROGRAMA ARCOÍRIS
-    const canvas = document.getElementById("visualizer");
-    const canvasCtx = canvas.getContext("2d");
+    let canvas = null, canvasCtx = null;
     let audioCtx, analyser, sourceNode, lowFilter, midFilter, highFilter, audioGraphInitialized = false;
 
     function initAudioGraph() {
@@ -1239,7 +1221,9 @@
 
     function drawVisualizer() {
       requestAnimationFrame(drawVisualizer);
-      if (!viewLibrary.clientWidth) return;
+      canvas = document.getElementById("visualizer");
+      if (!canvas || !viewLibrary.clientWidth) return;
+      canvasCtx = canvas.getContext("2d");
 
       canvas.width = canvas.parentElement.clientWidth;
       canvas.height = canvas.parentElement.clientHeight;
@@ -1261,14 +1245,14 @@
 
         let gradient;
         if (currentSkin === "sony") {
-          // DEGRADADO ARCOÍRIS PARA EL MINI COMPONENTE SONY
+          // ESPECTROGRAMA CON DEGRADADO ARCOÍRIS
           gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
-          gradient.addColorStop(0.0, "#ff0000"); // Rojo
-          gradient.addColorStop(0.2, "#ff7f00"); // Naranja
-          gradient.addColorStop(0.4, "#ffff00"); // Amarillo
-          gradient.addColorStop(0.6, "#00ff00"); // Verde
-          gradient.addColorStop(0.8, "#0000ff"); // Azul
-          gradient.addColorStop(1.0, "#8b00ff"); // Violeta
+          gradient.addColorStop(0.0, "#ff0000");
+          gradient.addColorStop(0.2, "#ff7f00");
+          gradient.addColorStop(0.4, "#ffff00");
+          gradient.addColorStop(0.6, "#00ff00");
+          gradient.addColorStop(0.8, "#0000ff");
+          gradient.addColorStop(1.0, "#8b00ff");
         } else {
           // DEGRADADO CYBERPUNK ESTÁNDAR
           gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
