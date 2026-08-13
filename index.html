@@ -198,14 +198,14 @@
       text-align: center;
     }
 
-    /* TARJETAS DE VISTAS (BIBLIOTECA / PLAYLISTS) */
+    /* TARJETAS DE VISTAS (BIBLIOTECA / PLAYLISTS) - FONDO MÁS CLARO PARA DESTACAR BOTONES */
     .view-card {
-      background: rgba(20, 24, 40, 0.88);
+      background: rgba(35, 42, 68, 0.95);
       backdrop-filter: blur(16px); 
-      border: 1px solid rgba(0, 243, 255, 0.5); 
+      border: 1px solid rgba(0, 243, 255, 0.6); 
       border-radius: 16px; 
       padding: 20px;
-      box-shadow: 0 0 25px rgba(0, 243, 255, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 25px rgba(0, 243, 255, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.1);
     }
 
     /* ANIMACIÓN GLITCH */
@@ -238,7 +238,7 @@
     }
 
     .neon-btn {
-      background: rgba(0, 243, 255, 0.15);
+      background: rgba(0, 243, 255, 0.2);
       color: #00f3ff;
       border: 1px solid #00f3ff;
       padding: 12px;
@@ -249,10 +249,10 @@
       transition: all 0.2s;
     }
 
-    .neon-btn:hover { background: rgba(0, 243, 255, 0.35); }
+    .neon-btn:hover { background: rgba(0, 243, 255, 0.4); }
 
     .neon-btn-secondary {
-      background: rgba(255, 0, 85, 0.15);
+      background: rgba(255, 0, 85, 0.2);
       color: #ff0055;
       border: 1px solid #ff0055;
       padding: 12px;
@@ -263,7 +263,7 @@
       transition: all 0.2s;
     }
 
-    .neon-btn-secondary:hover { background: rgba(255, 0, 85, 0.35); }
+    .neon-btn-secondary:hover { background: rgba(255, 0, 85, 0.4); }
 
     .section-header {
       display: flex;
@@ -284,14 +284,14 @@
       justify-content: space-between;
       align-items: center;
       padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 20, 35, 0.7);
+      border: 1px solid rgba(0, 243, 255, 0.2);
       border-radius: 8px;
       margin-bottom: 8px;
       font-size: 0.72rem;
     }
 
-    .track-item:hover { border-color: rgba(0, 243, 255, 0.8); background: rgba(0, 243, 255, 0.12); }
+    .track-item:hover { border-color: rgba(0, 243, 255, 0.8); background: rgba(0, 243, 255, 0.15); }
     .track-meta { flex: 1; overflow: hidden; margin-right: 8px; cursor: pointer; }
     .track-name { color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
     .track-artist-sub { color: #00f3ff; font-size: 0.62rem; opacity: 0.9; }
@@ -391,7 +391,7 @@
     .skin-sony .player-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #111219; }
     .skin-sony .player-btn.btn-stop { color: #ff0055; border-color: #ff0055; }
 
-    /* --- SKIN 3: WALKMAN SONY CYBERPUNK --- */
+    /* --- SKIN 3: WALKMAN SONY CON CASETE ANIMADO --- */
     .main-player-container.skin-walkman {
       background: linear-gradient(180deg, #2b2e3a 0%, #15171e 100%);
       border: 2px solid #00f3ff;
@@ -418,12 +418,75 @@
     }
     .skin-walkman .player-title { font-size: 0.75rem; color: #00f3ff; font-family: 'Share Tech Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .skin-walkman .player-artist { font-size: 0.65rem; color: #fff; font-family: 'Share Tech Mono', monospace; }
-    .skin-walkman .visualizer-wrapper {
+
+    /* COMPONENTE DE CASETE ANIMADO */
+    .cassette-wrapper {
       width: 100%;
-      height: 75px;
+      height: 90px;
       margin-top: 6px;
-      border-top: 1px solid #34384a;
+      background: #11131c;
+      border: 1px solid #34384a;
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
     }
+
+    .cassette-body {
+      width: 160px;
+      height: 70px;
+      background: #1e2230;
+      border: 2px solid #ff0055;
+      border-radius: 6px;
+      padding: 6px;
+      position: relative;
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+    }
+
+    .cassette-sticker {
+      background: #ff0055;
+      color: #ffffff;
+      font-size: 0.45rem;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 2px;
+      padding: 1px 0;
+      letter-spacing: 1px;
+    }
+
+    .cassette-window {
+      background: #000;
+      border: 1px solid #00f3ff;
+      border-radius: 4px;
+      height: 38px;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cassette-reel {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff 20%, #ff0055 21%, #ff0055 40%, #000 41%);
+      border: 2px dashed #00f3ff;
+    }
+
+    /* ANIMACIÓN GIRO DE CASETE */
+    .skin-walkman.playing .cassette-reel {
+      animation: spinReel 2s linear infinite;
+    }
+
+    @keyframes spinReel {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     .skin-walkman .player-controls {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -888,14 +951,14 @@
       container.innerHTML = "";
 
       if (playlists.length === 0) {
-        container.innerHTML = `<p style="font-size:0.7rem; color:rgba(255,255,255,0.5);">NO HAY PLAYLISTS CREADAS.</p>`;
+        container.innerHTML = `<p style="font-size:0.7rem; color:rgba(255,255,255,0.7);">NO HAY PLAYLISTS CREADAS.</p>`;
         return;
       }
 
       playlists.forEach((pl, plIndex) => {
         const div = document.createElement("div");
         div.className = "playlist-card-item";
-        div.style.cssText = "background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 10px; padding: 12px; margin-bottom: 10px;";
+        div.style.cssText = "background: rgba(15, 20, 35, 0.7); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 10px;";
         
         let tracksHTML = pl.tracks.map((t, tIndex) => `
           <div class="track-item" style="margin-bottom:4px;">
@@ -914,7 +977,7 @@
               <button class="action-btn danger" onclick="deletePlaylist(${plIndex})">🗑️</button>
             </div>
           </div>
-          <div>${tracksHTML || '<span style="font-size:0.6rem; color:rgba(255,255,255,0.4);">VACÍA</span>'}</div>
+          <div>${tracksHTML || '<span style="font-size:0.6rem; color:rgba(255,255,255,0.6);">VACÍA</span>'}</div>
         `;
         container.appendChild(div);
       });
@@ -974,7 +1037,7 @@
     // PLANTILLAS Y RENDERIZADO DE SKINS EN EL REPRODUCTOR
     // ----------------------------------------------------
     function applySkin(skinName) {
-      mainPlayer.className = `main-player-container skin-${skinName}`;
+      mainPlayer.className = `main-player-container skin-${skinName}${isPlaying ? ' playing' : ''}`;
 
       if (skinName === "classic") {
         mainPlayer.innerHTML = `
@@ -1030,8 +1093,17 @@
           <div class="walkman-window">
             <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
             <div class="player-artist" id="player-track-artist">SYSTEM READY</div>
-            <div class="visualizer-wrapper">
-              <canvas id="visualizer"></canvas>
+            
+            <!-- CASETE EN MOVIMIENTO REEMPLAZA AL ESPECTROGRAMA -->
+            <div class="cassette-wrapper">
+              <div class="cassette-body">
+                <div class="cassette-sticker">CYBER CASSETTE 90</div>
+                <div class="cassette-window">
+                  <div class="cassette-reel"></div>
+                  <div style="width: 40px; height: 12px; background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; border-radius: 2px;"></div>
+                  <div class="cassette-reel"></div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="player-controls">
@@ -1131,6 +1203,13 @@
       if (btnPlay) {
         btnPlay.innerText = isPlaying ? (currentSkin === "classic" ? "⏸" : "⏸ PAUSE") : (currentSkin === "classic" ? "▶" : "▶ PLAY");
       }
+
+      // Alternar clase para animación del casete Walkman
+      if (isPlaying) {
+        mainPlayer.classList.add("playing");
+      } else {
+        mainPlayer.classList.remove("playing");
+      }
     }
 
     function playSong() {
@@ -1181,7 +1260,7 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // WEB AUDIO API Y ESPECTROGRAMA ARCOÍRIS
+    // WEB AUDIO API Y ESPECTROGRAMA ARCOÍRIS CON ORIENTACIÓN CAMBIADA
     let canvas = null, canvasCtx = null;
     let audioCtx, analyser, sourceNode, lowFilter, midFilter, highFilter, audioGraphInitialized = false;
 
@@ -1245,8 +1324,8 @@
 
         let gradient;
         if (currentSkin === "sony") {
-          // ESPECTROGRAMA CON DEGRADADO ARCOÍRIS
-          gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
+          // CAMBIO DE POSICIÓN/DIRECCIÓN DE COLORES ARCOÍRIS (HORIZONTAL DE IZQUIERDA A DERECHA)
+          gradient = canvasCtx.createLinearGradient(0, 0, width, 0);
           gradient.addColorStop(0.0, "#ff0000");
           gradient.addColorStop(0.2, "#ff7f00");
           gradient.addColorStop(0.4, "#ffff00");
@@ -1254,7 +1333,7 @@
           gradient.addColorStop(0.8, "#0000ff");
           gradient.addColorStop(1.0, "#8b00ff");
         } else {
-          // DEGRADADO CYBERPUNK ESTÁNDAR
+          // DEGRADADO CYBERPUNK ESTÁNDAR VERTICAL
           gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
           gradient.addColorStop(0, "#00f3ff");
           gradient.addColorStop(0.7, "#ff0055");
