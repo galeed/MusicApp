@@ -598,10 +598,8 @@
     <!-- VISTA: MI BIBLIOTECA -->
     <div class="view-card" id="view-library" style="display: none;">
       
-      <!-- CONTENEDOR DINÁMICO DEL REPRODUCTOR (DONDE SE APLICAN LOS SKINS) -->
-      <div class="main-player-container skin-classic" id="main-player">
-        <!-- El contenido HTML del reproductor se inyecta por JS según el Skin seleccionado -->
-      </div>
+      <!-- CONTENEDOR DINÁMICO DEL REPRODUCTOR -->
+      <div class="main-player-container skin-classic" id="main-player"></div>
 
       <!-- EQUALIZADOR DE 3 BANDAS -->
       <div class="eq-container">
@@ -624,7 +622,7 @@
 
       <!-- BOTÓN DE CARGA -->
       <div style="text-align: center; margin-bottom: 14px;">
-        <label for="file-input" class="neon-btn-secondary" style="display: block; cursor: pointer;">⚡ SUBIR AUDIO A LA NUBE (.WAV / .FLAC)</label>
+        <label for="file-input" class="neon-btn-secondary" style="display: block; cursor: pointer;">⚡ SUBIR AUDIO A LA NUBE (.WAV / .FLAC / .MP3)</label>
         <input type="file" id="file-input" accept="audio/*,.wav,.flac,.mp3" multiple style="display: none;">
         <p id="upload-status" style="font-size: 0.6rem; color: #00f3ff; margin-top: 4px;"></p>
       </div>
@@ -848,11 +846,15 @@
       });
     }
 
-    // CARGA DE CANCIONES
+    // CARGA REAL DE CANCIONES DESDE LA NUBE
     async function loadCloudTracks() {
       if (!currentUser || !supabaseClient) return;
-      const { data } = await supabaseClient.storage.from("audio-tracks").list(currentUser.id, { limit: 100 });
-      if (!data) return;
+      
+      const { data, error } = await supabaseClient.storage.from("audio-tracks").list(currentUser.id, { limit: 100 });
+      if (error || !data) {
+        console.error("Error consultando archivos:", error);
+        return;
+      }
 
       songs = data.map(file => {
         const filePath = `${currentUser.id}/${file.name}`;
@@ -891,49 +893,48 @@
       });
     }
 
-    // SUBIDA CON METADATOS
+    // SUBIDA CORREGIDA A SUPABASE CON VALIDACIÓN REAL
     document.getElementById("file-input").addEventListener("change", async (e) => {
       const files = Array.from(e.target.files);
-      for (const file of files) {
-        document.getElementById("upload-status").innerText = `SUBIENDO: ${file.name}...`;
-        let title = file.name.replace(/\.[^/.]+$/, "");
-        let artist = "ARTISTA DESCONOCIDO";
-        let album = "CYBER ALBUM";
+      const statusEl = document.getElementById("upload-status");
 
-        try {
-          await new Promise((resolve) => {
-            window.jsmediatags.read(file, {
-              onSuccess: (tag) => {
-                if (tag.tags.title) title = tag.tags.title;
-                if (tag.tags.artist) artist = tag.tags.artist;
-                if (tag.tags.album) album = tag.tags.album;
-                resolve();
-              },
-              onError: () => resolve()
-            });
-          });
-        } catch(e){}
+      if (!files.length) return;
+
+      for (const file of files) {
+        statusEl.innerText = `SUBIENDO: ${file.name}...`;
 
         const sanitized = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
         const filePath = `${currentUser.id}/${Date.now()}_${sanitized}`;
 
-        const { error } = await supabaseClient.storage.from("audio-tracks").upload(filePath, file);
-        if (!error) {
-          const { data } = supabaseClient.storage.from("audio-tracks").getPublicUrl(filePath);
-          songs.push({ id: filePath, fileNameOnServer: filePath, title, artist, album, src: data.publicUrl });
+        const { data, error } = await supabaseClient.storage
+          .from("audio-tracks")
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: file.type || 'audio/mpeg'
+          });
+
+        if (error) {
+          console.error("Error al subir a Supabase:", error);
+          statusEl.innerText = `ERROR AL SUBIR: ${error.message}`;
+          return;
         }
       }
-      document.getElementById("upload-status").innerText = "¡SUBIDA COMPLETADA!";
-      renderLibrary();
+
+      statusEl.innerText = "¡SUBIDA COMPLETADA!";
+      await loadCloudTracks();
     });
 
     async function deleteTrack(index, e) {
       e.stopPropagation();
       const song = songs[index];
       if (confirm(`¿Eliminar "${song.title}"?`)) {
-        await supabaseClient.storage.from("audio-tracks").remove([song.fileNameOnServer]);
-        songs.splice(index, 1);
-        renderLibrary();
+        const { error } = await supabaseClient.storage.from("audio-tracks").remove([song.fileNameOnServer]);
+        if (!error) {
+          await loadCloudTracks();
+        } else {
+          alert("Error al eliminar de la nube: " + error.message);
+        }
       }
     }
 
@@ -1094,7 +1095,6 @@
             <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
             <div class="player-artist" id="player-track-artist">SYSTEM READY</div>
             
-            <!-- CASETE EN MOVIMIENTO REEMPLAZA AL ESPECTROGRAMA -->
             <div class="cassette-wrapper">
               <div class="cassette-body">
                 <div class="cassette-sticker">CYBER CASSETTE 90</div>
@@ -1124,7 +1124,6 @@
       bindPlayerControls();
       updatePlayerUI();
       
-      // Reiniciar referencias del canvas del espectrograma
       canvas = document.getElementById("visualizer");
       if (canvas) canvasCtx = canvas.getContext("2d");
     }
@@ -1204,7 +1203,6 @@
         btnPlay.innerText = isPlaying ? (currentSkin === "classic" ? "⏸" : "⏸ PAUSE") : (currentSkin === "classic" ? "▶" : "▶ PLAY");
       }
 
-      // Alternar clase para animación del casete Walkman
       if (isPlaying) {
         mainPlayer.classList.add("playing");
       } else {
@@ -1260,7 +1258,7 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // WEB AUDIO API Y ESPECTROGRAMA ARCOÍRIS CON ORIENTACIÓN CAMBIADA
+    // WEB AUDIO API Y ESPECTROGRAMA ARCOÍRIS HORIZONTAL
     let canvas = null, canvasCtx = null;
     let audioCtx, analyser, sourceNode, lowFilter, midFilter, highFilter, audioGraphInitialized = false;
 
@@ -1324,7 +1322,7 @@
 
         let gradient;
         if (currentSkin === "sony") {
-          // CAMBIO DE POSICIÓN/DIRECCIÓN DE COLORES ARCOÍRIS (HORIZONTAL DE IZQUIERDA A DERECHA)
+          // DEGRADADO HORIZONTAL ARCOÍRIS
           gradient = canvasCtx.createLinearGradient(0, 0, width, 0);
           gradient.addColorStop(0.0, "#ff0000");
           gradient.addColorStop(0.2, "#ff7f00");
@@ -1333,7 +1331,6 @@
           gradient.addColorStop(0.8, "#0000ff");
           gradient.addColorStop(1.0, "#8b00ff");
         } else {
-          // DEGRADADO CYBERPUNK ESTÁNDAR VERTICAL
           gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
           gradient.addColorStop(0, "#00f3ff");
           gradient.addColorStop(0.7, "#ff0055");
