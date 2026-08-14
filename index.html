@@ -5,15 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cyberpunk Audio Player</title>
 
-  <!-- Librería jsmediatags para lectura de metadatos ID3 -->
+  <!-- Librería jsmediatags -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* ----------------------------------------------------
-       ESTILOS BASE & CYBERPUNK
-       ---------------------------------------------------- */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -34,7 +31,6 @@
       transition: background 0.5s ease-in-out;
     }
 
-    /* EFECTO CRT SCANLINES & STATIC BACKGROUND */
     body::before {
       content: "";
       position: fixed;
@@ -54,9 +50,7 @@
       pointer-events: none;
     }
 
-    /* ----------------------------------------------------
-       REGLAS DE FONDO CLARO EN REPRODUCCIÓN (PLAYING)
-       ---------------------------------------------------- */
+    /* FONDO EN REPRODUCCIÓN */
     body.logged-in:has(#main-player.playing) {
       background-color: #121829;
       background-image: 
@@ -74,7 +68,6 @@
       z-index: 2;
     }
 
-    /* CONTAINER PRINCIPAL */
     .app-container {
       width: 90%;
       max-width: 480px;
@@ -82,7 +75,6 @@
       margin: 20px auto;
     }
 
-    /* GLITCH EFFECT */
     .glitch-effect {
       animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
     }
@@ -96,7 +88,6 @@
       100% { transform: translate(0) }
     }
 
-    /* NAVBAR & DROPDOWNS */
     .navbar {
       display: none;
       justify-content: space-between;
@@ -119,9 +110,7 @@
       border-radius: 4px;
     }
 
-    .dropdown {
-      position: relative;
-    }
+    .dropdown { position: relative; }
 
     .dropdown-menu {
       display: none;
@@ -148,14 +137,9 @@
 
     .dropdown-item:hover { background: rgba(0, 243, 255, 0.2); }
 
-    .submenu {
-      display: none;
-      padding-left: 15px;
-      background: rgba(0,0,0,0.5);
-    }
+    .submenu { display: none; padding-left: 15px; background: rgba(0,0,0,0.5); }
     .submenu.show { display: block; }
 
-    /* AUTH SCREEN */
     .auth-box {
       background: rgba(10, 10, 20, 0.9);
       border: 2px solid #ff0055;
@@ -188,7 +172,6 @@
       box-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
     }
 
-    /* REPRODUCTOR Y SKINS */
     .main-player-container {
       background: rgba(10, 15, 25, 0.9);
       border: 1px solid #00f3ff;
@@ -196,17 +179,56 @@
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
       margin-bottom: 15px;
+      position: relative;
     }
 
     .visualizer-wrapper {
       width: 100%;
-      height: 60px;
+      height: 70px;
       background: #000;
       border: 1px solid rgba(0, 243, 255, 0.3);
       margin-bottom: 10px;
+      position: relative;
     }
 
     #visualizer { width: 100%; height: 100%; }
+
+    /* MEDIDOR VU */
+    .vu-meter-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin: 5px 0;
+      font-size: 0.6rem;
+    }
+    .vu-track {
+      flex: 1;
+      height: 6px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .vu-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00ff00 60%, #ffff00 85%, #ff0000 100%);
+      transition: width 0.05s ease;
+    }
+
+    /* LYRICS */
+    .lyrics-display {
+      min-height: 28px;
+      font-size: 0.75rem;
+      color: #ff0055;
+      text-shadow: 0 0 5px rgba(255,0,85,0.8);
+      text-align: center;
+      margin: 6px 0;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     .info-display { text-align: center; margin-bottom: 10px; }
     .player-title { font-weight: bold; color: #ff0055; font-size: 0.9rem; text-transform: uppercase; }
@@ -217,6 +239,7 @@
       justify-content: center;
       gap: 10px;
       margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
     .player-btn {
@@ -240,28 +263,14 @@
       accent-color: #ff0055;
     }
 
-    /* SKIN SONY */
-    .skin-sony {
-      background: #111;
-      border: 2px solid #555;
-      box-shadow: inset 0 0 10px #000;
-    }
+    .skin-sony { background: #111; border: 2px solid #555; }
     .skin-sony .sony-brand { font-weight: bold; color: #888; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 5px; }
 
-    /* SKIN WALKMAN */
-    .skin-walkman {
-      background: #2b2b2b;
-      border: 3px solid #ff9900;
-    }
+    .skin-walkman { background: #2b2b2b; border: 3px solid #ff9900; }
     .skin-walkman .walkman-logo { color: #ff9900; font-weight: bold; font-size: 0.8rem; }
     .cassette-window {
-      background: #000;
-      height: 40px;
-      border: 1px solid #ff9900;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      margin: 8px 0;
+      background: #000; height: 40px; border: 1px solid #ff9900;
+      display: flex; align-items: center; justify-content: space-around; margin: 8px 0;
     }
     .cassette-reel {
       width: 20px; height: 20px; border-radius: 50%; border: 2px dashed #ff9900;
@@ -269,15 +278,10 @@
     }
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* TRACK LISTS & EQ */
     .track-list { list-style: none; margin-top: 10px; max-height: 180px; overflow-y: auto; }
     .track-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px;
-      border-bottom: 1px dashed rgba(0, 243, 255, 0.2);
-      font-size: 0.75rem;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px; border-bottom: 1px dashed rgba(0, 243, 255, 0.2); font-size: 0.75rem;
     }
     .track-meta { cursor: pointer; flex: 1; }
     .track-actions { display: flex; gap: 5px; }
@@ -285,17 +289,11 @@
     .action-btn.danger { border-color: #ff0055; color: #ff0055; }
 
     .eq-container {
-      display: flex;
-      justify-content: space-between;
-      background: rgba(0,0,0,0.5);
-      padding: 10px;
-      border-radius: 6px;
-      margin-top: 10px;
-      font-size: 0.65rem;
+      display: flex; justify-content: space-between; background: rgba(0,0,0,0.5);
+      padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.65rem;
     }
     .eq-band { display: flex; flex-direction: column; align-items: center; }
 
-    /* MODAL */
     .modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center;
@@ -307,9 +305,9 @@
 
   <canvas id="tv-static-canvas"></canvas>
   <audio id="audio-player" crossorigin="anonymous"></audio>
+  <input type="file" id="lrc-file-input" accept=".lrc" style="display:none;">
 
   <div class="app-container">
-    <!-- NAVBAR -->
     <div class="navbar" id="app-navbar">
       <span style="font-weight: bold; font-size: 0.8rem;">CYBER//AUDIO</span>
       <div class="dropdown">
@@ -328,7 +326,6 @@
       </div>
     </div>
 
-    <!-- AUTH SCREEN -->
     <div class="auth-box" id="auth-screen">
       <h2 style="color:#ff0055; margin-bottom: 10px; font-size: 1.1rem;">CYBERPUNK AUDIO SYSTEM</h2>
       <p style="font-size: 0.7rem; margin-bottom: 15px; color: #00f3ff;">ACCESO REQUERIDO</p>
@@ -341,10 +338,8 @@
       <div id="auth-status" style="margin-top: 10px; font-size: 0.65rem; color:#ff0055;"></div>
     </div>
 
-    <!-- REPRODUCTOR -->
     <div class="main-player-container skin-classic" id="main-player" style="display:none;"></div>
 
-    <!-- SECCIÓN LIBRERÍA -->
     <div id="view-library" style="display:none;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
         <span style="font-size:0.75rem; font-weight:bold;">SUBIR ARCHIVOS:</span>
@@ -354,7 +349,6 @@
       <div id="upload-status" style="font-size:0.6rem; color:#00f3ff; margin-bottom:8px;"></div>
       <ul class="track-list" id="library-track-list"></ul>
 
-      <!-- EQUALIZER -->
       <div class="eq-container">
         <div class="eq-band">
           <span>LOW</span>
@@ -371,14 +365,12 @@
       </div>
     </div>
 
-    <!-- SECCIÓN PLAYLISTS -->
     <div id="view-playlists" style="display:none;">
       <button class="neon-btn" id="btn-create-playlist" style="width:100%; margin-bottom:10px; font-size:0.7rem;">+ NUEVA PLAYLIST</button>
       <div id="playlists-container"></div>
     </div>
   </div>
 
-  <!-- MODAL AGREGAR A PLAYLIST -->
   <div class="modal" id="modal-add-playlist">
     <div class="modal-content">
       <p style="font-size:0.75rem; margin-bottom:10px;">SELECCIONA PLAYLIST:</p>
@@ -388,9 +380,7 @@
   </div>
 
   <script>
-    // ----------------------------------------------------
-    // GENERADOR DE RUIDO / ESTÁTICA DE TV ANALÓGICA
-    // ----------------------------------------------------
+    // EFECTO DE ESTÁTICA TV (FONDO)
     const staticCanvas = document.getElementById("tv-static-canvas");
     const staticCtx = staticCanvas.getContext("2d");
     let staticAnimationId = null;
@@ -435,9 +425,7 @@
 
     startTVStatic();
 
-    // ----------------------------------------------------
-    // SUPABASE CONFIG & LOGIC
-    // ----------------------------------------------------
+    // CREDENCIALES SUPABASE (REEMPLAZA ESTOS VALORES POR LOS TUYOS)
     const SUPABASE_URL = "https://cwpjjzamawyywfcsnaqo.supabase.co"; 
     const SUPABASE_ANON_KEY = "sb_publishable_NynLf9J-n78PPW7Oaw2W1Q_0_kJjwtl"; 
     
@@ -453,10 +441,10 @@
     let currentSongIndex = -1;
     let isPlaying = false;
     
-    // PERSISTENCIA: Carga la skin previa o usa 'classic'
     let currentSkin = localStorage.getItem("musicapp_skin") || "classic";
+    let visualizerMode = "bars"; 
+    let lyricsData = [];
 
-    // DOM ELEMENTS
     const appNavbar = document.getElementById("app-navbar");
     const authScreen = document.getElementById("auth-screen");
     const viewLibrary = document.getElementById("view-library");
@@ -466,7 +454,6 @@
     const skinsSubmenu = document.getElementById("skins-submenu");
     const audio = document.getElementById("audio-player");
 
-    // ANIMACIÓN GLITCH Y NAVEGACIÓN
     function triggerGlitch(element, cb) {
       element.classList.remove("glitch-effect");
       void element.offsetWidth;
@@ -487,11 +474,9 @@
       } else if (view === "playlists") {
         viewPlaylists.style.display = "block";
         triggerGlitch(viewPlaylists);
-        renderPlaylistsView();
       }
     }
 
-    // MENU & SKINS TOGGLES
     document.getElementById("btn-toggle-menu").addEventListener("click", (e) => {
       e.stopPropagation();
       dropdownMenu.classList.toggle("show");
@@ -513,8 +498,6 @@
         document.querySelectorAll(".skin-option").forEach(o => o.classList.remove("active"));
         opt.classList.add("active");
         currentSkin = opt.getAttribute("data-skin");
-        
-        // GUARDAR PREFERENCIA DE SKIN
         localStorage.setItem("musicapp_skin", currentSkin);
         applySkin(currentSkin);
       });
@@ -523,7 +506,6 @@
     document.getElementById("menu-library").addEventListener("click", () => showView("library"));
     document.getElementById("menu-playlists").addEventListener("click", () => showView("playlists"));
 
-    // AUTHENTICATION
     document.getElementById("btn-login").addEventListener("click", async () => {
       triggerGlitch(authScreen, async () => {
         const email = document.getElementById("auth-email").value.trim();
@@ -556,7 +538,6 @@
       stopSong();
     });
 
-    // LISTENER DE SESIÓN
     if (supabaseClient) {
       supabaseClient.auth.onAuthStateChange((event, session) => {
         if (session) {
@@ -589,7 +570,7 @@
       });
     }
 
-    // CARGA DE CANCIONES DESDE SUPABASE
+    // CARGAR ARCHIVOS DESDE SUPABASE
     async function loadCloudTracks() {
       if (!currentUser || !supabaseClient) return;
       
@@ -613,9 +594,12 @@
       renderLibrary();
     }
 
+    // RENDERIZADO DE BIBLIOTECA CON REPRODUCIR, DESCARGAR Y ELIMINAR
     function renderLibrary() {
       const list = document.getElementById("library-track-list");
+      if (!list) return;
       list.innerHTML = "";
+
       songs.forEach((song, i) => {
         const li = document.createElement("li");
         li.className = "track-item";
@@ -625,7 +609,7 @@
             <div class="track-artist-sub" style="font-size:0.6rem; color:#888;">${song.artist} • ${song.album}</div>
           </div>
           <div class="track-actions">
-            <button class="action-btn" onclick="openAddToPlaylistModal(${i})">+ LISTA</button>
+            <button class="action-btn" onclick="downloadTrack(${i}, event)">⬇ DL</button>
             <button class="action-btn danger" onclick="deleteTrack(${i}, event)">✕</button>
           </div>
         `;
@@ -634,13 +618,13 @@
       });
     }
 
-    // METADATOS ID3 Y SUBIDA
+    // PROCESO DE SUBIDA
     async function processAndUploadFiles(files) {
       const statusEl = document.getElementById("upload-status");
       if (!files.length || !currentUser) return;
 
       for (const file of files) {
-        statusEl.innerText = `LEYENDO METADATOS: ${file.name}...`;
+        statusEl.innerText = `PROCESANDO: ${file.name}...`;
 
         if (window.jsmediatags) {
           window.jsmediatags.read(file, {
@@ -666,22 +650,75 @@
       const statusEl = document.getElementById("upload-status");
       statusEl.innerText = `SUBIENDO: ${title}...`;
 
-      const sanitized = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-      const filePath = `${currentUser.id}/${Date.now()}_${sanitized}`;
+      const cleanFileName = file.name.toLowerCase().replace(/[^a-z0-9.]/g, "_");
+      const filePath = `${currentUser.id}/${Date.now()}_${cleanFileName}`;
 
-      const { data, error } = await supabaseClient.storage
-        .from("audio-tracks")
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type || 'audio/mpeg'
-        });
+      try {
+        const { data, error } = await supabaseClient.storage
+          .from("audio-tracks")
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: file.type || 'audio/mpeg'
+          });
 
-      if (error) {
-        statusEl.innerText = `ERROR: ${error.message}`;
-      } else {
-        statusEl.innerText = "¡SUBIDA COMPLETADA!";
-        await loadCloudTracks();
+        if (error) {
+          statusEl.innerText = `ERROR AL SUBIR: ${error.message}`;
+        } else {
+          statusEl.innerText = "¡SUBIDA COMPLETADA!";
+          await loadCloudTracks();
+        }
+      } catch (err) {
+        statusEl.innerText = "ERROR DE CONEXIÓN O ALMACENAMIENTO";
+      }
+    }
+
+    // DESCARGAR PISTA
+    async function downloadTrack(index, e) {
+      e.stopPropagation();
+      const song = songs[index];
+      const statusEl = document.getElementById("upload-status");
+      
+      if (statusEl) statusEl.innerText = `DESCARGANDO: ${song.title}...`;
+
+      try {
+        const response = await fetch(song.src);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = `${song.title}.mp3`;
+        document.body.appendChild(a);
+        a.click();
+        
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        if (statusEl) statusEl.innerText = "DESCARGA COMPLETADA";
+      } catch (err) {
+        if (statusEl) statusEl.innerText = "ERROR EN LA DESCARGA";
+      }
+    }
+
+    // ELIMINAR PISTA
+    async function deleteTrack(index, e) {
+      e.stopPropagation();
+      const song = songs[index];
+      
+      if (confirm(`¿Confirmas eliminar "${song.title}" de tu biblioteca?`)) {
+        const statusEl = document.getElementById("upload-status");
+        if (statusEl) statusEl.innerText = `ELIMINANDO: ${song.title}...`;
+
+        const { error } = await supabaseClient.storage.from("audio-tracks").remove([song.fileNameOnServer]);
+        
+        if (error) {
+          if (statusEl) statusEl.innerText = `ERROR AL BORRAR: ${error.message}`;
+        } else {
+          if (statusEl) statusEl.innerText = "PISTA ELIMINADA";
+          if (currentSongIndex === index) stopSong();
+          await loadCloudTracks();
+        }
       }
     }
 
@@ -689,7 +726,6 @@
       processAndUploadFiles(Array.from(e.target.files));
     });
 
-    // DRAG & DROP
     window.addEventListener("dragover", (e) => e.preventDefault());
     window.addEventListener("drop", (e) => {
       e.preventDefault();
@@ -698,119 +734,53 @@
       }
     });
 
-    async function deleteTrack(index, e) {
-      e.stopPropagation();
-      const song = songs[index];
-      if (confirm(`¿Eliminar "${song.title}"?`)) {
-        const { error } = await supabaseClient.storage.from("audio-tracks").remove([song.fileNameOnServer]);
-        if (!error) await loadCloudTracks();
-      }
-    }
-
-    // PLAYLISTS
-    document.getElementById("btn-create-playlist").addEventListener("click", () => {
-      const name = prompt("Nombre de la nueva lista:");
-      if (name && name.trim()) {
-        playlists.push({ id: Date.now(), name: name.trim(), tracks: [] });
-        renderPlaylistsView();
-      }
+    // ARCHIVOS LRC (LETRAS)
+    document.getElementById("lrc-file-input").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => parseLRC(evt.target.result);
+      reader.readAsText(file);
     });
 
-    function renderPlaylistsView() {
-      const container = document.getElementById("playlists-container");
-      container.innerHTML = "";
+    function parseLRC(lrcText) {
+      lyricsData = [];
+      const lines = lrcText.split("\n");
+      const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
 
-      if (playlists.length === 0) {
-        container.innerHTML = `<p style="font-size:0.7rem; color:rgba(255,255,255,0.7);">NO HAY PLAYLISTS CREADAS.</p>`;
-        return;
-      }
-
-      playlists.forEach((pl, plIndex) => {
-        const div = document.createElement("div");
-        div.className = "playlist-card-item";
-        div.style.cssText = "background: rgba(15, 20, 35, 0.7); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 10px;";
-        
-        let tracksHTML = pl.tracks.map((t, tIndex) => `
-          <div class="track-item" style="margin-bottom:4px;">
-            <div class="track-meta" onclick="playQueue(playlists[${plIndex}].tracks, ${tIndex})">
-              <div class="track-name">${t.title}</div>
-            </div>
-            <button class="action-btn danger" onclick="removeTrackFromPlaylist(${plIndex}, ${tIndex})">✕</button>
-          </div>
-        `).join("");
-
-        div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-size: 0.8rem; color: #00f3ff; font-weight: bold;">🎵 ${pl.name} (${pl.tracks.length})</span>
-            <div>
-              <button class="action-btn" onclick="renamePlaylist(${plIndex})">✏️</button>
-              <button class="action-btn danger" onclick="deletePlaylist(${plIndex})">🗑️</button>
-            </div>
-          </div>
-          <div>${tracksHTML || '<span style="font-size:0.6rem; color:rgba(255,255,255,0.6);">VACÍA</span>'}</div>
-        `;
-        container.appendChild(div);
+      lines.forEach(line => {
+        const match = timeRegex.exec(line);
+        if (match) {
+          const minutes = parseInt(match[1]);
+          const seconds = parseInt(match[2]);
+          const millis = parseInt(match[3].padEnd(3, '0'));
+          const time = minutes * 60 + seconds + millis / 1000;
+          const text = line.replace(timeRegex, "").trim();
+          if (text) lyricsData.push({ time, text });
+        }
       });
+      lyricsData.sort((a, b) => a.time - b.time);
     }
 
-    function renamePlaylist(index) {
-      const newName = prompt("Nuevo nombre:", playlists[index].name);
-      if (newName && newName.trim()) {
-        playlists[index].name = newName.trim();
-        renderPlaylistsView();
-      }
-    }
-
-    function deletePlaylist(index) {
-      if (confirm(`¿Eliminar la lista "${playlists[index].name}"?`)) {
-        playlists.splice(index, 1);
-        renderPlaylistsView();
-      }
-    }
-
-    function removeTrackFromPlaylist(plIndex, trackIndex) {
-      playlists[plIndex].tracks.splice(trackIndex, 1);
-      renderPlaylistsView();
-    }
-
-    function openAddToPlaylistModal(songIndex) {
-      const trackToAddToPlaylist = songs[songIndex];
-      const container = document.getElementById("modal-playlist-options");
-      container.innerHTML = "";
-
-      if (playlists.length === 0) {
-        container.innerHTML = `<p style="font-size:0.65rem; color:#ff0055;">Crea primero una lista en la sección Playlists.</p>`;
-      } else {
-        playlists.forEach((pl) => {
-          const btn = document.createElement("button");
-          btn.className = "neon-btn";
-          btn.style.cssText = "width:100%; margin-bottom:6px; text-align:left;";
-          btn.innerText = `+ ${pl.name}`;
-          btn.onclick = () => {
-            if (!pl.tracks.find(t => t.src === trackToAddToPlaylist.src)) {
-              pl.tracks.push(trackToAddToPlaylist);
-            }
-            document.getElementById("modal-add-playlist").style.display = "none";
-          };
-          container.appendChild(btn);
-        });
-      }
-      document.getElementById("modal-add-playlist").style.display = "flex";
-    }
-
-    document.getElementById("btn-close-modal").addEventListener("click", () => {
-      document.getElementById("modal-add-playlist").style.display = "none";
-    });
-
-    // PLANTILLAS Y RENDERIZADO DE SKINS
+    // APLICAR SKINS
     function applySkin(skinName) {
       mainPlayer.className = `main-player-container skin-${skinName}${isPlaying ? ' playing' : ''}`;
 
+      let baseLayout = `
+        <div class="visualizer-wrapper">
+          <canvas id="visualizer"></canvas>
+        </div>
+        <div class="vu-meter-bar">
+          <span>VU</span>
+          <div class="vu-track"><div class="vu-fill" id="vu-fill"></div></div>
+          <button class="action-btn" id="btn-toggle-vis-mode" style="font-size:0.55rem;">MODO: BARRAS</button>
+          <button class="action-btn" id="btn-load-lrc" style="font-size:0.55rem;">[LRC]</button>
+        </div>
+        <div class="lyrics-display" id="lyrics-display">-- CYBER LYRICS --</div>
+      `;
+
       if (skinName === "classic") {
-        mainPlayer.innerHTML = `
-          <div class="visualizer-wrapper">
-            <canvas id="visualizer"></canvas>
-          </div>
+        mainPlayer.innerHTML = baseLayout + `
           <div class="info-display">
             <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
             <div class="player-artist" id="player-track-artist">SYSTEM//READY</div>
@@ -835,9 +805,7 @@
               <div class="player-artist" id="player-track-artist">ARTISTA: N/A</div>
               <div class="player-album" id="player-track-album" style="font-size:0.65rem;">ÁLBUM: SYSTEM</div>
             </div>
-            <div class="visualizer-wrapper">
-              <canvas id="visualizer"></canvas>
-            </div>
+            ${baseLayout}
           </div>
           <div class="player-controls">
             <button class="player-btn" id="btn-player-prev">⏮ REV</button>
@@ -860,14 +828,14 @@
           <div class="walkman-window">
             <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
             <div class="player-artist" id="player-track-artist">SYSTEM READY</div>
-            
             <div class="cassette-window">
               <div class="cassette-reel"></div>
               <div style="width: 40px; height: 12px; background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; border-radius: 2px;"></div>
               <div class="cassette-reel"></div>
             </div>
+            ${baseLayout}
           </div>
-          <div class="player-controls" style="flex-wrap:wrap;">
+          <div class="player-controls">
             <button class="player-btn" id="btn-player-play">▶ PLAY</button>
             <button class="player-btn" id="btn-player-pause">⏸ PAUSE</button>
             <button class="player-btn btn-stop" id="btn-player-stop">⏹ EJECT</button>
@@ -889,7 +857,6 @@
       if (canvas) canvasCtx = canvas.getContext("2d");
     }
 
-    // CONTROLES Y MEDIA SESSION API
     function bindPlayerControls() {
       const btnPlay = document.getElementById("btn-player-play");
       const btnPause = document.getElementById("btn-player-pause");
@@ -897,6 +864,8 @@
       const btnNext = document.getElementById("btn-player-next");
       const btnPrev = document.getElementById("btn-player-prev");
       const progressBar = document.getElementById("player-progress-bar");
+      const btnToggleVis = document.getElementById("btn-toggle-vis-mode");
+      const btnLoadLrc = document.getElementById("btn-load-lrc");
 
       if (btnPlay) {
         btnPlay.onclick = () => {
@@ -907,17 +876,25 @@
 
       if (btnPause) btnPause.onclick = () => pauseSong();
       if (btnStop) btnStop.onclick = () => stopSong();
-
       if (btnNext) btnNext.onclick = () => playNext();
       if (btnPrev) btnPrev.onclick = () => playPrev();
+
+      if (btnToggleVis) {
+        btnToggleVis.onclick = () => {
+          visualizerMode = (visualizerMode === "bars") ? "wave" : "bars";
+          btnToggleVis.innerText = visualizerMode === "bars" ? "MODO: BARRAS" : "MODO: ONDA";
+        };
+      }
+
+      if (btnLoadLrc) {
+        btnLoadLrc.onclick = () => document.getElementById("lrc-file-input").click();
+      }
 
       if (progressBar) {
         progressBar.oninput = () => {
           if (audio.duration) audio.currentTime = (progressBar.value / 100) * audio.duration;
         };
       }
-
-      setupMediaSessionHandlers();
     }
 
     function playNext() {
@@ -934,26 +911,6 @@
       playSong();
     }
 
-    function setupMediaSessionHandlers() {
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.setActionHandler('play', () => playSong());
-        navigator.mediaSession.setActionHandler('pause', () => pauseSong());
-        navigator.mediaSession.setActionHandler('previoustrack', () => playPrev());
-        navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
-      }
-    }
-
-    function updateMediaSession(song) {
-      if ('mediaSession' in navigator && song) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: song.title,
-          artist: song.artist,
-          album: song.album || "CYBER AUDIO",
-          artwork: song.artwork ? [{ src: song.artwork, sizes: '512x512', type: 'image/png' }] : []
-        });
-      }
-    }
-
     function playQueue(queue, index) {
       currentQueue = queue;
       currentSongIndex = index;
@@ -965,6 +922,7 @@
       if (!song) return;
       audio.src = song.src;
       audio.load();
+      lyricsData = [];
 
       if (window.jsmediatags && song.src) {
         window.jsmediatags.read(song.src, {
@@ -973,27 +931,14 @@
             if (tags.title) song.title = tags.title;
             if (tags.artist) song.artist = tags.artist;
             if (tags.album) song.album = tags.album;
-
-            if (tags.picture) {
-              const { data, format } = tags.picture;
-              let base64String = "";
-              for (let i = 0; i < data.length; i++) {
-                base64String += String.fromCharCode(data[i]);
-              }
-              song.artwork = `data:${format};base64,${window.btoa(base64String)}`;
-            }
-
             updatePlayerUI();
-            updateMediaSession(song);
           },
           onError: function() {
             updatePlayerUI();
-            updateMediaSession(song);
           }
         });
       } else {
         updatePlayerUI();
-        updateMediaSession(song);
       }
     }
 
@@ -1027,7 +972,6 @@
       audio.play().then(() => {
         isPlaying = true;
         updatePlayerUI();
-        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
       }).catch(() => {
         isPlaying = false;
         updatePlayerUI();
@@ -1038,7 +982,6 @@
       isPlaying = false;
       audio.pause();
       updatePlayerUI();
-      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
     }
 
     function stopSong() {
@@ -1046,18 +989,23 @@
       audio.pause();
       audio.currentTime = 0;
       updatePlayerUI();
-      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "none";
     }
 
     audio.addEventListener("timeupdate", () => {
       const progressBar = document.getElementById("player-progress-bar");
       const currentTimeEl = document.getElementById("player-current-time");
       const totalDurationEl = document.getElementById("player-total-duration");
+      const lyricsDisplay = document.getElementById("lyrics-display");
 
       if (audio.duration) {
         if (progressBar) progressBar.value = (audio.currentTime / audio.duration) * 100;
         if (currentTimeEl) currentTimeEl.innerText = formatTime(audio.currentTime);
         if (totalDurationEl) totalDurationEl.innerText = formatTime(audio.duration);
+      }
+
+      if (lyricsData.length > 0 && lyricsDisplay) {
+        const currentLyric = lyricsData.slice().reverse().find(l => audio.currentTime >= l.time);
+        lyricsDisplay.innerText = currentLyric ? currentLyric.text : "...";
       }
     });
 
@@ -1069,7 +1017,7 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // WEB AUDIO API Y EQ CON LOCALSTORAGE
+    // WEB AUDIO API Y VISUALIZADOR
     let canvas = null, canvasCtx = null;
     let audioCtx, analyser, sourceNode, lowFilter, midFilter, highFilter, audioGraphInitialized = false;
 
@@ -1088,23 +1036,19 @@
         document.getElementById("eq-high").value = savedHigh;
 
         lowFilter = audioCtx.createBiquadFilter();
-        lowFilter.type = "lowshelf"; 
-        lowFilter.frequency.value = 60;
+        lowFilter.type = "lowshelf"; lowFilter.frequency.value = 60;
         lowFilter.gain.value = parseFloat(savedLow);
 
         midFilter = audioCtx.createBiquadFilter();
-        midFilter.type = "peaking"; 
-        midFilter.frequency.value = 1000; 
-        midFilter.Q.value = 1.0;
+        midFilter.type = "peaking"; midFilter.frequency.value = 1000; midFilter.Q.value = 1.0;
         midFilter.gain.value = parseFloat(savedMid);
 
         highFilter = audioCtx.createBiquadFilter();
-        highFilter.type = "highshelf"; 
-        highFilter.frequency.value = 10000;
+        highFilter.type = "highshelf"; highFilter.frequency.value = 10000;
         highFilter.gain.value = parseFloat(savedHigh);
 
         analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 64;
+        analyser.fftSize = 128;
 
         sourceNode = audioCtx.createMediaElementSource(audio);
         sourceNode.connect(lowFilter);
@@ -1146,34 +1090,54 @@
       if (!analyser) return;
 
       const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      analyser.getByteFrequencyData(dataArray);
+      const freqData = new Uint8Array(bufferLength);
+      analyser.getByteFrequencyData(freqData);
 
-      const barWidth = (width / bufferLength) * 1.5;
-      let x = 0;
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) { sum += freqData[i]; }
+      const averagePeak = sum / bufferLength;
+      const vuFill = document.getElementById("vu-fill");
+      if (vuFill) vuFill.style.width = `${Math.min(100, (averagePeak / 180) * 100)}%`;
 
-      for (let i = 0; i < bufferLength; i++) {
-        const barHeight = (dataArray[i] / 255) * height * 0.85;
+      if (visualizerMode === "bars") {
+        const barWidth = (width / bufferLength) * 1.5;
+        let x = 0;
 
-        let gradient;
-        if (currentSkin === "sony") {
-          gradient = canvasCtx.createLinearGradient(0, 0, width, 0);
-          gradient.addColorStop(0.0, "#ff0000");
-          gradient.addColorStop(0.2, "#ff7f00");
-          gradient.addColorStop(0.4, "#ffff00");
-          gradient.addColorStop(0.6, "#00ff00");
-          gradient.addColorStop(0.8, "#0000ff");
-          gradient.addColorStop(1.0, "#8b00ff");
-        } else {
-          gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
+        for (let i = 0; i < bufferLength; i++) {
+          const barHeight = (freqData[i] / 255) * height * 0.85;
+
+          let gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
           gradient.addColorStop(0, "#00f3ff");
           gradient.addColorStop(0.7, "#ff0055");
           gradient.addColorStop(1, "#ffffff");
+
+          canvasCtx.fillStyle = gradient;
+          canvasCtx.fillRect(x, height - barHeight, barWidth - 2, barHeight);
+          x += barWidth;
+        }
+      } else if (visualizerMode === "wave") {
+        const timeData = new Uint8Array(analyser.fftSize);
+        analyser.getByteTimeDomainData(timeData);
+
+        canvasCtx.lineWidth = 2;
+        canvasCtx.strokeStyle = "#00f3ff";
+        canvasCtx.beginPath();
+
+        const sliceWidth = width / analyser.fftSize;
+        let x = 0;
+
+        for (let i = 0; i < analyser.fftSize; i++) {
+          const v = timeData[i] / 128.0;
+          const y = (v * height) / 2;
+
+          if (i === 0) canvasCtx.moveTo(x, y);
+          else canvasCtx.lineTo(x, y);
+
+          x += sliceWidth;
         }
 
-        canvasCtx.fillStyle = gradient;
-        canvasCtx.fillRect(x, height - barHeight, barWidth - 3, barHeight);
-        x += barWidth;
+        canvasCtx.lineTo(width, height / 2);
+        canvasCtx.stroke();
       }
     }
   </script>
