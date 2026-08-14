@@ -549,6 +549,22 @@
       width: 90%;
       max-width: 320px;
     }
+    
+    /* FONDO MÁS CLARO ÚNICAMENTE CUANDO SE REPRODUCE MÚSICA */
+body.logged-in:has(#main-player.playing) {
+  background-color: #121829; /* Base más clara en lugar de #030305 */
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.35) 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.35) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(20, 30, 55, 0.6) 0%, rgba(10, 15, 30, 0.8) 100%);
+  transition: background 0.5s ease-in-out;
+}
+
+/* Reducción sutil de las sombras obscuras en los bordes durante la reproducción */
+body.logged-in:has(#main-player.playing)::after {
+  background: radial-gradient(circle, transparent 70%, rgba(0, 0, 0, 0.4) 100%);
+}
+
   </style>
 </head>
 <body>
