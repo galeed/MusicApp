@@ -3,24 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyberpunk Audio Player</title>
+  <title>Cyber-GX Music Player</title>
 
-  <!-- Librería jsmediatags -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
-  <!-- Supabase JS Client -->
+  <!-- SUPABASE JS SDK v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    /* VARIABLES DE TEMAS (SKINS DE OPERA GX) */
+    :root {
+      /* Skin por defecto: GX Classic / Red */
+      --gx-bg: #0d0e12;
+      --gx-surface: #14161d;
+      --gx-surface-card: #1c1e26;
+      --gx-accent: #ff0055;
+      --gx-accent-glow: rgba(255, 0, 85, 0.4);
+      --gx-text: #ffffff;
+      --gx-text-muted: #8e94a0;
+      --gx-border: #2a2e3d;
+      --gx-font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    /* SKINS POPULARES DE OPERA GX */
+    body.skin-purple-haze {
+      --gx-accent: #9d4edd;
+      --gx-accent-glow: rgba(157, 78, 221, 0.4);
+    }
+    body.skin-ultraviolet {
+      --gx-accent: #00f0ff;
+      --gx-accent-glow: rgba(0, 240, 255, 0.4);
+    }
+    body.skin-frankenstein {
+      --gx-accent: #00ff66;
+      --gx-accent-glow: rgba(0, 255, 102, 0.4);
+    }
+    body.skin-gold {
+      --gx-accent: #e0a96d;
+      --gx-accent-glow: rgba(224, 169, 109, 0.4);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Courier New', Courier, monospace;
+      font-family: var(--gx-font);
     }
 
     body {
-      background-color: #030305;
-      color: #00f3ff;
+      background-color: var(--gx-bg);
+      color: var(--gx-text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -28,89 +58,82 @@
       justify-content: center;
       overflow-x: hidden;
       position: relative;
-      transition: background 0.5s ease-in-out;
     }
 
-    /* CAPA DE SCANLINES - Agregado pointer-events: none */
+    /* Malla de puntos de fondo */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-      background-size: 100% 4px;
-      z-index: 2;
-      pointer-events: none; /* Permite hacer clic a través de esta capa */
-      opacity: 0.6;
-    }
-
-    /* CANVAS DE ESTÁTICA - Modificado z-index a -1 */
-    #tv-static-canvas {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      z-index: -1; /* Enviado detrás de todo el contenido */
-      opacity: 0.15;
+      background-image: radial-gradient(var(--gx-border) 1px, transparent 0);
+      background-size: 24px 24px;
+      opacity: 0.3;
+      z-index: -2;
       pointer-events: none;
-    }
-
-    /* FONDO EN REPRODUCCIÓN */
-    body.logged-in:has(#main-player.playing) {
-      background-color: #121829;
-      background-image: 
-        radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.35) 0%, transparent 55%),
-        radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.35) 0%, transparent 55%),
-        linear-gradient(180deg, rgba(20, 30, 55, 0.6) 0%, rgba(10, 15, 30, 0.8) 100%);
-    }
-
-    body.logged-in:has(#main-player.playing)::after {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle, transparent 70%, rgba(0, 0, 0, 0.4) 100%);
-      pointer-events: none;
-      z-index: 1;
     }
 
     .app-container {
-      width: 90%;
-      max-width: 480px;
-      z-index: 10; /* Eleva el contenedor para recibir los eventos */
+      width: 95%;
+      max-width: 520px;
+      z-index: 10;
       margin: 20px auto;
       position: relative;
     }
 
-    .glitch-effect {
-      animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
-    }
-
-    @keyframes glitch {
-      0% { transform: translate(0) }
-      20% { transform: translate(-2px, 2px) }
-      40% { transform: translate(-2px, -2px) }
-      60% { transform: translate(2px, 2px) }
-      80% { transform: translate(2px, -2px) }
-      100% { transform: translate(0) }
-    }
-
+    /* BARRA NAVEGACIÓN ESTILO GX TAB */
     .navbar {
       display: none;
       justify-content: space-between;
       align-items: center;
-      background: rgba(10, 15, 25, 0.85);
-      border: 1px solid #00f3ff;
-      padding: 10px 15px;
-      border-radius: 8px;
+      background: var(--gx-surface);
+      border: 1px solid var(--gx-border);
+      border-left: 3px solid var(--gx-accent);
+      padding: 12px 16px;
+      border-radius: 4px;
       margin-bottom: 15px;
-      box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* SELECTOR DE SKINS OPERA GX */
+    .skin-select {
+      background: var(--gx-surface-card);
+      border: 1px solid var(--gx-border);
+      color: var(--gx-text);
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .skin-select:hover, .skin-select:focus {
+      border-color: var(--gx-accent);
+      box-shadow: 0 0 8px var(--gx-accent-glow);
     }
 
     .menu-btn {
-      background: transparent;
-      border: 1px solid #00f3ff;
-      color: #00f3ff;
-      padding: 5px 10px;
+      background: var(--gx-surface-card);
+      border: 1px solid var(--gx-border);
+      color: var(--gx-text);
+      padding: 6px 12px;
       cursor: pointer;
-      font-weight: bold;
-      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+    }
+
+    .menu-btn:hover {
+      border-color: var(--gx-accent);
+      color: var(--gx-accent);
+      box-shadow: 0 0 10px var(--gx-accent-glow);
     }
 
     .dropdown { position: relative; }
@@ -119,30 +142,39 @@
       display: none;
       position: absolute;
       right: 0;
-      top: 35px;
-      background: rgba(5, 5, 10, 0.95);
-      border: 1px solid #ff0055;
-      box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
-      min-width: 160px;
+      top: 40px;
+      background: var(--gx-surface);
+      border: 1px solid var(--gx-border);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+      min-width: 180px;
       z-index: 100;
       border-radius: 4px;
+      overflow: hidden;
     }
 
     .dropdown-menu.show { display: block; }
 
     .dropdown-item {
-      padding: 10px;
-      color: #fff;
+      padding: 10px 14px;
+      color: var(--gx-text-muted);
       cursor: pointer;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      font-size: 0.75rem;
+      border-bottom: 1px solid var(--gx-border);
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
     }
 
-    .dropdown-item:hover { background: rgba(0, 243, 255, 0.2); }
+    .dropdown-item:hover {
+      background: var(--gx-surface-card);
+      color: var(--gx-accent);
+      padding-left: 18px;
+    }
 
-    .submenu { display: none; padding-left: 15px; background: rgba(0,0,0,0.5); }
+    .submenu { display: none; padding-left: 10px; background: rgba(0,0,0,0.3); }
     .submenu.show { display: block; }
 
+    /* ========================================================= */
+    /* PANTALLA DE AUTENTICACIÓN (DISEÑO ORIGINAL INTACTO)        */
+    /* ========================================================= */
     .auth-box {
       background: rgba(10, 10, 20, 0.9);
       border: 2px solid #ff0055;
@@ -175,1310 +207,403 @@
       box-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
     }
 
-    .main-player-container {
-      background: rgba(10, 15, 25, 0.9);
-      border: 1px solid #00f3ff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
-      margin-bottom: 15px;
-      position: relative;
-    }
-
-    .visualizer-wrapper {
-      width: 100%;
-      height: 70px;
-      background: #000;
-      border: 1px solid rgba(0, 243, 255, 0.3);
-      margin-bottom: 10px;
-      position: relative;
-    }
-
-    #visualizer { width: 100%; height: 100%; }
-
-    /* MEDIDOR VU */
-    .vu-meter-bar {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin: 5px 0;
-      font-size: 0.6rem;
-    }
-    .vu-track {
-      flex: 1;
-      height: 6px;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .vu-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #00ff00 60%, #ffff00 85%, #ff0000 100%);
-      transition: width 0.05s ease;
-    }
-
-    /* LYRICS */
-    .lyrics-display {
-      min-height: 28px;
+    .auth-msg {
       font-size: 0.75rem;
-      color: #ff0055;
-      text-shadow: 0 0 5px rgba(255,0,85,0.8);
-      text-align: center;
-      margin: 6px 0;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      margin-top: 10px;
+      min-height: 18px;
     }
+    .auth-msg.error { color: #ff3355; }
+    .auth-msg.success { color: #00ff66; }
+    /* ========================================================= */
 
-    .info-display { text-align: center; margin-bottom: 10px; }
-    .player-title { font-weight: bold; color: #ff0055; font-size: 0.9rem; text-transform: uppercase; }
-    .player-artist { font-size: 0.75rem; color: #00f3ff; }
-
-    .player-controls {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .player-btn {
-      background: transparent;
-      border: 1px solid #00f3ff;
-      color: #00f3ff;
-      padding: 6px 12px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .player-progress {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.7rem;
-    }
-
-    .player-progress input[type="range"] {
-      flex: 1;
-      accent-color: #ff0055;
-    }
-
-    .skin-sony { background: #111; border: 2px solid #555; }
-    .skin-sony .sony-brand { font-weight: bold; color: #888; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 5px; }
-
-    .skin-walkman { background: #2b2b2b; border: 3px solid #ff9900; }
-    .skin-walkman .walkman-logo { color: #ff9900; font-weight: bold; font-size: 0.8rem; }
-    .cassette-window {
-      background: #000; height: 40px; border: 1px solid #ff9900;
-      display: flex; align-items: center; justify-content: space-around; margin: 8px 0;
-    }
-    .cassette-reel {
-      width: 20px; height: 20px; border-radius: 50%; border: 2px dashed #ff9900;
-      animation: spin 3s linear infinite;
-    }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-
-    .track-list { list-style: none; margin-top: 10px; max-height: 180px; overflow-y: auto; }
-    .track-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 6px; border-bottom: 1px dashed rgba(0, 243, 255, 0.2); font-size: 0.75rem;
-    }
-    .track-meta { cursor: pointer; flex: 1; }
-    .track-actions { display: flex; gap: 5px; }
-    .action-btn { background: transparent; border: 1px solid #00f3ff; color: #00f3ff; font-size: 0.6rem; cursor: pointer; padding: 2px 4px; }
-    .action-btn.danger { border-color: #ff0055; color: #ff0055; }
-
-    .eq-container {
-      display: flex; justify-content: space-between; background: rgba(0,0,0,0.5);
-      padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.65rem;
-    }
-    .eq-band { display: flex; flex-direction: column; align-items: center; }
-
-    .modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center;
-    }
-    .modal-content { background: #05050a; border: 1px solid #00f3ff; padding: 20px; border-radius: 8px; width: 80%; max-width: 320px; }
-  </style>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Courier New', Courier, monospace;
-    }
-
-    body {
-      background-color: #030305;
-      color: #00f3ff;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow-x: hidden;
-      position: relative;
-      transition: background 0.5s ease-in-out;
-    }
-
-    /* CAPA DE SCANLINES - Agregado pointer-events: none */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-      background-size: 100% 4px;
-      z-index: 2;
-      pointer-events: none; /* Permite hacer clic a través de esta capa */
-      opacity: 0.6;
-    }
-
-    /* CANVAS DE ESTÁTICA - Modificado z-index a -1 */
-    #tv-static-canvas {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      z-index: -1; /* Enviado detrás de todo el contenido */
-      opacity: 0.15;
-      pointer-events: none;
-    }
-
-    /* FONDO EN REPRODUCCIÓN */
-    body.logged-in:has(#main-player.playing) {
-      background-color: #121829;
-      background-image: 
-        radial-gradient(circle at 15% 15%, rgba(0, 243, 255, 0.35) 0%, transparent 55%),
-        radial-gradient(circle at 85% 85%, rgba(255, 0, 85, 0.35) 0%, transparent 55%),
-        linear-gradient(180deg, rgba(20, 30, 55, 0.6) 0%, rgba(10, 15, 30, 0.8) 100%);
-    }
-
-    body.logged-in:has(#main-player.playing)::after {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle, transparent 70%, rgba(0, 0, 0, 0.4) 100%);
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .app-container {
-      width: 90%;
-      max-width: 480px;
-      z-index: 10; /* Eleva el contenedor para recibir los eventos */
-      margin: 20px auto;
-      position: relative;
-    }
-
-    .glitch-effect {
-      animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
-    }
-
-    @keyframes glitch {
-      0% { transform: translate(0) }
-      20% { transform: translate(-2px, 2px) }
-      40% { transform: translate(-2px, -2px) }
-      60% { transform: translate(2px, 2px) }
-      80% { transform: translate(2px, -2px) }
-      100% { transform: translate(0) }
-    }
-
-    .navbar {
-      display: none;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(10, 15, 25, 0.85);
-      border: 1px solid #00f3ff;
-      padding: 10px 15px;
-      border-radius: 8px;
+    /* REPRODUCTOR PRINCIPAL - OPERA GX PANEL */
+    .main-player-container {
+      background: var(--gx-surface);
+      border: 1px solid var(--gx-border);
+      padding: 18px;
+      border-radius: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       margin-bottom: 15px;
-      box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+      position: relative;
     }
 
-    .menu-btn {
-      background: transparent;
-      border: 1px solid #00f3ff;
-      color: #00f3ff;
-      padding: 5px 10px;
-      cursor: pointer;
-      font-weight: bold;
-      border-radius: 4px;
-    }
-
-    .dropdown { position: relative; }
-
-    .dropdown-menu {
-      display: none;
+    .main-player-container::before {
+      content: "";
       position: absolute;
-      right: 0;
-      top: 35px;
-      background: rgba(5, 5, 10, 0.95);
-      border: 1px solid #ff0055;
-      box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
-      min-width: 160px;
-      z-index: 100;
-      border-radius: 4px;
-    }
-
-    .dropdown-menu.show { display: block; }
-
-    .dropdown-item {
-      padding: 10px;
-      color: #fff;
-      cursor: pointer;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      font-size: 0.75rem;
-    }
-
-    .dropdown-item:hover { background: rgba(0, 243, 255, 0.2); }
-
-    .submenu { display: none; padding-left: 15px; background: rgba(0,0,0,0.5); }
-    .submenu.show { display: block; }
-
-    .auth-box {
-      background: rgba(10, 10, 20, 0.9);
-      border: 2px solid #ff0055;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
-      text-align: center;
-    }
-
-    .cyber-input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      background: #000;
-      border: 1px solid #00f3ff;
-      color: #00f3ff;
-      outline: none;
-      border-radius: 4px;
-    }
-
-    .neon-btn {
-      background: #ff0055;
-      color: #fff;
-      border: none;
-      padding: 10px 15px;
-      margin: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      border-radius: 4px;
-      box-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
-    }
-
-    .main-player-container {
-      background: rgba(10, 15, 25, 0.9);
-      border: 1px solid #00f3ff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
-      margin-bottom: 15px;
-      position: relative;
+      top: 0; left: 0; width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--gx-accent), transparent);
     }
 
     .visualizer-wrapper {
       width: 100%;
-      height: 70px;
-      background: #000;
-      border: 1px solid rgba(0, 243, 255, 0.3);
-      margin-bottom: 10px;
+      height: 80px;
+      background: var(--gx-bg);
+      border: 1px solid var(--gx-border);
+      margin-bottom: 12px;
       position: relative;
+      border-radius: 3px;
+      overflow: hidden;
     }
 
     #visualizer { width: 100%; height: 100%; }
 
-    /* MEDIDOR VU */
     .vu-meter-bar {
       display: flex;
       align-items: center;
-      gap: 5px;
-      margin: 5px 0;
-      font-size: 0.6rem;
+      gap: 6px;
+      margin: 8px 0;
+      font-size: 0.65rem;
+      color: var(--gx-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    .vu-track {
-      flex: 1;
-      height: 6px;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .vu-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #00ff00 60%, #ffff00 85%, #ff0000 100%);
-      transition: width 0.05s ease;
-    }
-
-    /* LYRICS */
-    .lyrics-display {
-      min-height: 28px;
-      font-size: 0.75rem;
-      color: #ff0055;
-      text-shadow: 0 0 5px rgba(255,0,85,0.8);
-      text-align: center;
-      margin: 6px 0;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .info-display { text-align: center; margin-bottom: 10px; }
-    .player-title { font-weight: bold; color: #ff0055; font-size: 0.9rem; text-transform: uppercase; }
-    .player-artist { font-size: 0.75rem; color: #00f3ff; }
-
-    .player-controls {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .player-btn {
-      background: transparent;
-      border: 1px solid #00f3ff;
-      color: #00f3ff;
-      padding: 6px 12px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .player-progress {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.7rem;
-    }
-
-    .player-progress input[type="range"] {
-      flex: 1;
-      accent-color: #ff0055;
-    }
-
-    .skin-sony { background: #111; border: 2px solid #555; }
-    .skin-sony .sony-brand { font-weight: bold; color: #888; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 5px; }
-
-    .skin-walkman { background: #2b2b2b; border: 3px solid #ff9900; }
-    .skin-walkman .walkman-logo { color: #ff9900; font-weight: bold; font-size: 0.8rem; }
-    .cassette-window {
-      background: #000; height: 40px; border: 1px solid #ff9900;
-      display: flex; align-items: center; justify-content: space-around; margin: 8px 0;
-    }
-    .cassette-reel {
-      width: 20px; height: 20px; border-radius: 50%; border: 2px dashed #ff9900;
-      animation: spin 3s linear infinite;
-    }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-
-    .track-list { list-style: none; margin-top: 10px; max-height: 180px; overflow-y: auto; }
-    .track-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 6px; border-bottom: 1px dashed rgba(0, 243, 255, 0.2); font-size: 0.75rem;
-    }
-    .track-meta { cursor: pointer; flex: 1; }
-    .track-actions { display: flex; gap: 5px; }
-    .action-btn { background: transparent; border: 1px solid #00f3ff; color: #00f3ff; font-size: 0.6rem; cursor: pointer; padding: 2px 4px; }
-    .action-btn.danger { border-color: #ff0055; color: #ff0055; }
-
-    .eq-container {
-      display: flex; justify-content: space-between; background: rgba(0,0,0,0.5);
-      padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.65rem;
-    }
-    .eq-band { display: flex; flex-direction: column; align-items: center; }
-
-    .modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center;
-    }
-    .modal-content { background: #05050a; border: 1px solid #00f3ff; padding: 20px; border-radius: 8px; width: 80%; max-width: 320px; }
     
-      /* BIBLIOTECA EN TONOS CLAROS CYBERPUNK */
-  .track-list {
-    background: #e6f7ff; /* Fondo claro helado */
-    border: 1px solid #00f3ff;
-    border-radius: 6px;
-    padding: 8px;
-    box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.3), 0 0 10px rgba(0, 243, 255, 0.2);
-  }
+    .vu-track {
+      flex: 1;
+      height: 4px;
+      background: var(--gx-bg);
+      border: 1px solid var(--gx-border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
 
-  .track-item {
-    background: #ffffff;
-    border-bottom: 1px solid #b3f0ff;
-    color: #050b14; /* Texto oscuro para legibilidad total */
-    margin-bottom: 4px;
-    padding: 8px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-  }
+    .vu-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--gx-accent);
+      box-shadow: 0 0 8px var(--gx-accent);
+      transition: width 0.05s linear;
+    }
 
-  .track-item:hover {
-    background: #d4f5ff;
-    box-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
-  }
+    .lyrics-display {
+      min-height: 32px;
+      font-size: 0.8rem;
+      color: var(--gx-accent);
+      text-align: center;
+      margin: 8px 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.5px;
+    }
 
-  .track-meta {
-    color: #004d61;
-    font-weight: bold;
-  }
+    .info-display { text-align: center; margin-bottom: 12px; }
+    
+    .player-title { 
+      font-weight: 700; 
+      color: var(--gx-text); 
+      font-size: 1rem; 
+      letter-spacing: 0.5px;
+    }
+    
+    .player-artist { 
+      font-size: 0.8rem; 
+      color: var(--gx-text-muted); 
+      margin-top: 2px;
+    }
 
-  /* Botones adaptados para contraste sobre fondo claro */
-  .track-actions .action-btn {
-    background: #050b14;
-    color: #00f3ff;
-    border: 1px solid #00a8b3;
-    font-weight: bold;
-  }
+    .player-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
 
-  .track-actions .action-btn.danger {
-    background: #2a0008;
-    color: #ff0055;
-    border-color: #ff0055;
-  }
+    .player-btn {
+      background: var(--gx-surface-card);
+      border: 1px solid var(--gx-border);
+      color: var(--gx-text);
+      padding: 8px 14px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      transition: all 0.15s ease;
+    }
 
+    .player-btn:hover {
+      background: var(--gx-accent);
+      border-color: var(--gx-accent);
+      color: #fff;
+      box-shadow: 0 0 12px var(--gx-accent-glow);
+    }
+
+    .file-label-btn {
+      display: inline-block;
+    }
+
+    .player-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.75rem;
+      color: var(--gx-text-muted);
+    }
+
+    .player-progress input[type="range"] {
+      flex: 1;
+      height: 4px;
+      appearance: none;
+      background: var(--gx-bg);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .player-progress input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--gx-accent);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--gx-accent);
+    }
+
+    .track-list { 
+      list-style: none; 
+      margin-top: 12px; 
+      max-height: 200px; 
+      overflow-y: auto;
+      background: var(--gx-bg);
+      border: 1px solid var(--gx-border);
+      border-radius: 4px;
+      padding: 6px;
+    }
+
+    .track-item {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      padding: 8px 10px; 
+      border-bottom: 1px solid var(--gx-border); 
+      font-size: 0.8rem;
+      background: var(--gx-surface);
+      margin-bottom: 4px;
+      border-radius: 2px;
+      transition: border-color 0.2s ease;
+    }
+
+    .track-item:hover {
+      border-left: 2px solid var(--gx-accent);
+      background: var(--gx-surface-card);
+    }
+
+    .track-meta { 
+      cursor: pointer; 
+      flex: 1; 
+      color: var(--gx-text);
+      font-weight: 500;
+    }
+
+    .track-actions { display: flex; gap: 6px; }
+
+    .action-btn { 
+      background: var(--gx-bg); 
+      border: 1px solid var(--gx-border); 
+      color: var(--gx-text-muted); 
+      font-size: 0.7rem; 
+      cursor: pointer; 
+      padding: 4px 8px;
+      border-radius: 2px;
+    }
+
+    .action-btn:hover {
+      border-color: var(--gx-accent);
+      color: var(--gx-accent);
+    }
+
+    .action-btn.danger:hover { 
+      border-color: #ff3333; 
+      color: #ff3333; 
+    }
   </style>
 </head>
 <body>
 
-  <canvas id="tv-static-canvas"></canvas>
-  <audio id="audio-player" crossorigin="anonymous"></audio>
-  <input type="file" id="lrc-file-input" accept=".lrc" style="display:none;">
-
   <div class="app-container">
-    <div class="navbar" id="app-navbar">
-      <span style="font-weight: bold; font-size: 0.8rem;">CYBER//AUDIO</span>
-      <div class="dropdown">
-        <button class="menu-btn" id="btn-toggle-menu">MENÚ ☰</button>
-        <div class="dropdown-menu" id="dropdown-menu">
-          <div class="dropdown-item" id="menu-library">🎵 MI LIBRERÍA</div>
-          <div class="dropdown-item" id="menu-playlists">📂 PLAYLISTS</div>
-          <div class="dropdown-item" id="menu-skins-toggle">🎨 SKINS ▶</div>
-          <div class="submenu" id="skins-submenu">
-            <div class="dropdown-item skin-option" data-skin="classic">► CLASSIC</div>
-            <div class="dropdown-item skin-option" data-skin="sony">► SONY SYSTEM</div>
-            <div class="dropdown-item skin-option" data-skin="walkman">► WALKMAN</div>
+    
+    <!-- BARRA NAVEGACIÓN -->
+    <nav class="navbar" id="navbar">
+      <span style="font-weight: bold; font-size: 0.9rem; letter-spacing: 1px;">GX//PLAYER</span>
+      
+      <div class="nav-controls">
+        <select id="gx-skin-selector" class="skin-select" onchange="changeGxSkin(this.value)">
+          <option value="default">GX Red</option>
+          <option value="skin-purple-haze">Purple Haze</option>
+          <option value="skin-ultraviolet">Ultraviolet</option>
+          <option value="skin-frankenstein">Frankenstein</option>
+          <option value="skin-gold">Gold</option>
+        </select>
+
+        <div class="dropdown">
+          <button class="menu-btn" onclick="toggleMenu()">MENÚ ▼</button>
+          <div class="dropdown-menu" id="dropdown-menu">
+            <div class="dropdown-item" onclick="toggleSubmenu('sub-eq')">Ecualizador</div>
+            <div id="sub-eq" class="submenu">
+              <div class="dropdown-item">Preset: Flat</div>
+              <div class="dropdown-item">Preset: Bass Boost</div>
+            </div>
+            <div class="dropdown-item" onclick="logout()">Cerrar Sesión</div>
           </div>
-          <div class="dropdown-item" id="menu-logout" style="color:#ff0055;">🚪 CERRAR SESIÓN</div>
         </div>
       </div>
-    </div>
+    </nav>
 
-    <div class="auth-box" id="auth-screen">
-      <h2 style="color:#ff0055; margin-bottom: 10px; font-size: 1.1rem;">CYBERPUNK AUDIO SYSTEM</h2>
-      <p style="font-size: 0.7rem; margin-bottom: 15px; color: #00f3ff;">ACCESO REQUERIDO</p>
-      <input type="email" id="auth-email" class="cyber-input" placeholder="EMAIL">
-      <input type="password" id="auth-password" class="cyber-input" placeholder="CONTRASEÑA">
+    <!-- FORMULARIO DE AUTH SUPABASE -->
+    <div class="auth-box" id="auth-box">
+      <h2 style="color: #ff0055; margin-bottom: 15px;">LOGIN SYSTEM</h2>
+      <input type="email" class="cyber-input" placeholder="Correo electrónico" id="email">
+      <input type="password" class="cyber-input" placeholder="Contraseña" id="password">
+      
       <div style="margin-top: 10px;">
-        <button class="neon-btn" id="btn-login">LOGIN</button>
-        <button class="neon-btn" id="btn-signup" style="background:transparent; border:1px solid #ff0055;">REGISTRO</button>
+        <button class="neon-btn" onclick="login()">INGRESAR</button>
+        <button class="neon-btn" style="background: transparent; border: 1px solid #ff0055;" onclick="signUp()">REGISTRAR</button>
       </div>
-      <div id="auth-status" style="margin-top: 10px; font-size: 0.65rem; color:#ff0055;"></div>
+
+      <div class="auth-msg" id="auth-msg"></div>
     </div>
 
-    <div class="main-player-container skin-classic" id="main-player" style="display:none;"></div>
-
-    <div id="view-library" style="display:none;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-        <span style="font-size:0.75rem; font-weight:bold;">SUBIR ARCHIVOS:</span>
-        <input type="file" id="file-input" multiple accept="audio/*" style="display:none;">
-        <button class="neon-btn" onclick="document.getElementById('file-input').click()" style="font-size:0.65rem; padding:4px 8px;">+ ARCHIVOS</button>
+    <!-- REPRODUCTOR PRINCIPAL -->
+    <div class="main-player-container" id="main-player" style="display:none;">
+      <div class="visualizer-wrapper">
+        <canvas id="visualizer"></canvas>
       </div>
-      <div id="upload-status" style="font-size:0.6rem; color:#00f3ff; margin-bottom:8px;"></div>
-      <ul class="track-list" id="library-track-list"></ul>
 
-      <div class="eq-container">
-        <div class="eq-band">
-          <span>LOW</span>
-          <input type="range" id="eq-low" min="-12" max="12" value="0" step="1">
-        </div>
-        <div class="eq-band">
-          <span>MID</span>
-          <input type="range" id="eq-mid" min="-12" max="12" value="0" step="1">
-        </div>
-        <div class="eq-band">
-          <span>HIGH</span>
-          <input type="range" id="eq-high" min="-12" max="12" value="0" step="1">
-        </div>
+      <div class="vu-meter-bar">
+        <span>VU</span>
+        <div class="vu-track"><div class="vu-fill" id="vu-fill"></div></div>
       </div>
+
+      <div class="info-display">
+        <div class="player-title" id="player-title">Sin reproducción</div>
+        <div class="player-artist" id="player-artist">Selecciona una pista</div>
+      </div>
+
+      <div class="lyrics-display" id="lyrics-display">-- GX AUDIO ENGINE --</div>
+
+      <div class="player-controls">
+        <button class="player-btn">◀◀</button>
+        <button class="player-btn">▶</button>
+        <button class="player-btn">██</button>
+        <button class="player-btn">▶▶</button>
+        
+        <label for="file-input" class="player-btn file-label-btn">+ ARCHIVOS</label>
+        <input type="file" id="file-input" multiple accept="audio/*" style="display: none;">
+      </div>
+
+      <div class="player-progress">
+        <span>00:00</span>
+        <input type="range" value="0" min="0" max="100">
+        <span>00:00</span>
+      </div>
+
+      <ul class="track-list" id="track-list">
+        <li class="track-item">
+          <div class="track-meta">Demo_Track_01.mp3</div>
+          <div class="track-actions">
+            <button class="action-btn">▶</button>
+            <button class="action-btn danger">✕</button>
+          </div>
+        </li>
+      </ul>
     </div>
 
-    <div id="view-playlists" style="display:none;">
-      <button class="neon-btn" id="btn-create-playlist" style="width:100%; margin-bottom:10px; font-size:0.7rem;">+ NUEVA PLAYLIST</button>
-      <div id="playlists-container"></div>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-add-playlist">
-    <div class="modal-content">
-      <p style="font-size:0.75rem; margin-bottom:10px;">SELECCIONA PLAYLIST:</p>
-      <div id="modal-playlist-options"></div>
-      <button class="neon-btn" id="btn-close-modal" style="width:100%; margin-top:10px; background:#333;">CANCELAR</button>
-    </div>
   </div>
 
   <script>
-    // EFECTO DE ESTÁTICA TV (FONDO)
-    const staticCanvas = document.getElementById("tv-static-canvas");
-    const staticCtx = staticCanvas.getContext("2d");
-    let staticAnimationId = null;
+    // INICIALIZACIÓN DE SUPABASE
+    const SUPABASE_URL = "https://cwpjjzamawyywfcsnaqo.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_NynLf9J-n78PPW7Oaw2W1Q_0_kJjwtl";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function resizeStaticCanvas() {
-      staticCanvas.width = window.innerWidth / 2;
-      staticCanvas.height = window.innerHeight / 2;
-    }
-    window.addEventListener("resize", resizeStaticCanvas);
-    resizeStaticCanvas();
-
-    function generateTVStatic() {
-      const width = staticCanvas.width;
-      const height = staticCanvas.height;
-      const imgData = staticCtx.createImageData(width, height);
-      const buffer = new Uint32Array(imgData.data.buffer);
-      const len = buffer.length;
-
-      for (let i = 0; i < len; i++) {
-        const color = Math.random() * 255 | 0;
-        buffer[i] = (255 << 24) | (color << 16) | (color << 8) | color;
-      }
-
-      staticCtx.putImageData(imgData, 0, 0);
-      staticAnimationId = requestAnimationFrame(generateTVStatic);
-    }
-
-    function startTVStatic() {
-      if (!staticAnimationId) {
-        staticCanvas.style.display = "block";
-        generateTVStatic();
-      }
-    }
-
-    function stopTVStatic() {
-      if (staticAnimationId) {
-        cancelAnimationFrame(staticAnimationId);
-        staticAnimationId = null;
-        staticCanvas.style.display = "none";
-      }
-    }
-
-    startTVStatic();
-
-    // CREDENCIALES SUPABASE (REEMPLAZA ESTOS VALORES POR LOS TUYOS)
-    const SUPABASE_URL = "https://cwpjjzamawyywfcsnaqo.supabase.co"; 
-    const SUPABASE_ANON_KEY = "sb_publishable_NynLf9J-n78PPW7Oaw2W1Q_0_kJjwtl"; 
-    
-    let supabaseClient = null;
-    try {
-      if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (err) { console.error("Error Supabase:", err); }
-
-    let currentUser = null;
-    let songs = [];
-    let playlists = [];
-    let currentQueue = [];
-    let currentSongIndex = -1;
-    let isPlaying = false;
-    
-    let currentSkin = localStorage.getItem("musicapp_skin") || "classic";
-    let visualizerMode = "bars"; 
-    let lyricsData = [];
-
-    const appNavbar = document.getElementById("app-navbar");
-    const authScreen = document.getElementById("auth-screen");
-    const viewLibrary = document.getElementById("view-library");
-    const viewPlaylists = document.getElementById("view-playlists");
-    const mainPlayer = document.getElementById("main-player");
-    const dropdownMenu = document.getElementById("dropdown-menu");
-    const skinsSubmenu = document.getElementById("skins-submenu");
-    const audio = document.getElementById("audio-player");
-
-    function triggerGlitch(element, cb) {
-      element.classList.remove("glitch-effect");
-      void element.offsetWidth;
-      element.classList.add("glitch-effect");
-      setTimeout(() => { 
-        element.classList.remove("glitch-effect"); 
-        if(cb) cb(); 
-      }, 400);
-    }
-
-    function showView(view) {
-      viewLibrary.style.display = "none";
-      viewPlaylists.style.display = "none";
-
-      if (view === "library") {
-        viewLibrary.style.display = "block";
-        triggerGlitch(viewLibrary);
-      } else if (view === "playlists") {
-        viewPlaylists.style.display = "block";
-        triggerGlitch(viewPlaylists);
-      }
-    }
-
-    document.getElementById("btn-toggle-menu").addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdownMenu.classList.toggle("show");
-    });
-
-    document.getElementById("menu-skins-toggle").addEventListener("click", (e) => {
-      e.stopPropagation();
-      skinsSubmenu.classList.toggle("show");
-    });
-
-    document.addEventListener("click", () => {
-      dropdownMenu.classList.remove("show");
-      skinsSubmenu.classList.remove("show");
-    });
-
-    document.querySelectorAll(".skin-option").forEach(opt => {
-      opt.addEventListener("click", (e) => {
-        e.stopPropagation();
-        document.querySelectorAll(".skin-option").forEach(o => o.classList.remove("active"));
-        opt.classList.add("active");
-        currentSkin = opt.getAttribute("data-skin");
-        localStorage.setItem("musicapp_skin", currentSkin);
-        applySkin(currentSkin);
-      });
-    });
-
-    document.getElementById("menu-library").addEventListener("click", () => showView("library"));
-    document.getElementById("menu-playlists").addEventListener("click", () => showView("playlists"));
-
-    document.getElementById("btn-login").addEventListener("click", async () => {
-      triggerGlitch(authScreen, async () => {
-        const email = document.getElementById("auth-email").value.trim();
-        const password = document.getElementById("auth-password").value.trim();
-        if (!email || !password) {
-          document.getElementById("auth-status").innerText = "INGRESA EMAIL Y CONTRASEÑA";
-          return;
-        }
-        if (supabaseClient) {
-          const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-          if (error) document.getElementById("auth-status").innerText = error.message;
-        }
-      });
-    });
-
-    document.getElementById("btn-signup").addEventListener("click", async () => {
-      triggerGlitch(authScreen, async () => {
-        const email = document.getElementById("auth-email").value.trim();
-        const password = document.getElementById("auth-password").value.trim();
-        if (!email || !password) return;
-        if (supabaseClient) {
-          const { error } = await supabaseClient.auth.signUp({ email, password });
-          document.getElementById("auth-status").innerText = error ? error.message : "¡REGISTRO OK! REVISA TU EMAIL.";
-        }
-      });
-    });
-
-    document.getElementById("menu-logout").addEventListener("click", async () => {
-      if (supabaseClient) await supabaseClient.auth.signOut();
-      stopSong();
-    });
-
-    if (supabaseClient) {
-      supabaseClient.auth.onAuthStateChange((event, session) => {
-        if (session) {
-          currentUser = session.user;
-          document.body.classList.add("logged-in");
-          stopTVStatic();
-          
-          authScreen.style.display = "none";
-          appNavbar.style.display = "flex";
-          mainPlayer.style.display = "block";
-          
-          document.querySelectorAll(".skin-option").forEach(o => {
-            o.classList.toggle("active", o.getAttribute("data-skin") === currentSkin);
-          });
-
-          applySkin(currentSkin);
-          showView("library");
-          loadCloudTracks();
-        } else {
-          currentUser = null;
-          document.body.classList.remove("logged-in");
-          startTVStatic();
-
-          authScreen.style.display = "block";
-          appNavbar.style.display = "none";
-          mainPlayer.style.display = "none";
-          viewLibrary.style.display = "none";
-          viewPlaylists.style.display = "none";
-        }
-      });
-    }
-
-    // CARGAR ARCHIVOS DESDE SUPABASE
-    async function loadCloudTracks() {
-      if (!currentUser || !supabaseClient) return;
-      
-      const { data, error } = await supabaseClient.storage.from("audio-tracks").list(currentUser.id, { limit: 100 });
-      if (error || !data) return;
-
-      songs = data.map(file => {
-        const filePath = `${currentUser.id}/${file.name}`;
-        const { data: publicUrlData } = supabaseClient.storage.from("audio-tracks").getPublicUrl(filePath);
-        return {
-          id: file.id || filePath,
-          fileNameOnServer: filePath,
-          title: file.name.replace(/^\d+_/, "").replace(/\.[^/.]+$/, "").replace(/_/g, " "),
-          artist: "DESCONOCIDO",
-          album: "CYBER AUDIO",
-          artwork: null,
-          src: publicUrlData.publicUrl
-        };
-      });
-
-      renderLibrary();
-    }
-
-    // RENDERIZADO DE BIBLIOTECA CON REPRODUCIR, DESCARGAR Y ELIMINAR
-    function renderLibrary() {
-      const list = document.getElementById("library-track-list");
-      if (!list) return;
-      list.innerHTML = "";
-
-      songs.forEach((song, i) => {
-        const li = document.createElement("li");
-        li.className = "track-item";
-        li.innerHTML = `
-          <div class="track-meta">
-            <div class="track-name" style="font-weight:bold;">${song.title}</div>
-            <div class="track-artist-sub" style="font-size:0.6rem; color:#888;">${song.artist} • ${song.album}</div>
-          </div>
-          <div class="track-actions">
-            <button class="action-btn" onclick="downloadTrack(${i}, event)">⬇ DL</button>
-            <button class="action-btn danger" onclick="deleteTrack(${i}, event)">✕</button>
-          </div>
-        `;
-        li.querySelector(".track-meta").addEventListener("click", () => playQueue(songs, i));
-        list.appendChild(li);
-      });
-    }
-
-    // PROCESO DE SUBIDA
-    async function processAndUploadFiles(files) {
-      const statusEl = document.getElementById("upload-status");
-      if (!files.length || !currentUser) return;
-
-      for (const file of files) {
-        statusEl.innerText = `PROCESANDO: ${file.name}...`;
-
-        if (window.jsmediatags) {
-          window.jsmediatags.read(file, {
-            onSuccess: async function(tag) {
-              const tags = tag.tags;
-              const title = tags.title || file.name.replace(/\.[^/.]+$/, "");
-              const artist = tags.artist || "ARTISTA DESCONOCIDO";
-              const album = tags.album || "ÁLBUM DESCONOCIDO";
-
-              await uploadFileToSupabase(file, title, artist, album);
-            },
-            onError: async function() {
-              await uploadFileToSupabase(file, file.name.replace(/\.[^/.]+$/, ""), "ARTISTA DESCONOCIDO", "CYBER AUDIO");
-            }
-          });
-        } else {
-          await uploadFileToSupabase(file, file.name.replace(/\.[^/.]+$/, ""), "ARTISTA DESCONOCIDO", "CYBER AUDIO");
-        }
-      }
-    }
-
-    async function uploadFileToSupabase(file, title, artist, album) {
-      const statusEl = document.getElementById("upload-status");
-      statusEl.innerText = `SUBIENDO: ${title}...`;
-
-      const cleanFileName = file.name.toLowerCase().replace(/[^a-z0-9.]/g, "_");
-      const filePath = `${currentUser.id}/${Date.now()}_${cleanFileName}`;
-
-      try {
-        const { data, error } = await supabaseClient.storage
-          .from("audio-tracks")
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: true,
-            contentType: file.type || 'audio/mpeg'
-          });
-
-        if (error) {
-          statusEl.innerText = `ERROR AL SUBIR: ${error.message}`;
-        } else {
-          statusEl.innerText = "¡SUBIDA COMPLETADA!";
-          await loadCloudTracks();
-        }
-      } catch (err) {
-        statusEl.innerText = "ERROR DE CONEXIÓN O ALMACENAMIENTO";
-      }
-    }
-
-    // DESCARGAR PISTA
-    async function downloadTrack(index, e) {
-      e.stopPropagation();
-      const song = songs[index];
-      const statusEl = document.getElementById("upload-status");
-      
-      if (statusEl) statusEl.innerText = `DESCARGANDO: ${song.title}...`;
-
-      try {
-        const response = await fetch(song.src);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = url;
-        a.download = `${song.title}.mp3`;
-        document.body.appendChild(a);
-        a.click();
-        
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        if (statusEl) statusEl.innerText = "DESCARGA COMPLETADA";
-      } catch (err) {
-        if (statusEl) statusEl.innerText = "ERROR EN LA DESCARGA";
-      }
-    }
-
-    // ELIMINAR PISTA
-    async function deleteTrack(index, e) {
-      e.stopPropagation();
-      const song = songs[index];
-      
-      if (confirm(`¿Confirmas eliminar "${song.title}" de tu biblioteca?`)) {
-        const statusEl = document.getElementById("upload-status");
-        if (statusEl) statusEl.innerText = `ELIMINANDO: ${song.title}...`;
-
-        const { error } = await supabaseClient.storage.from("audio-tracks").remove([song.fileNameOnServer]);
-        
-        if (error) {
-          if (statusEl) statusEl.innerText = `ERROR AL BORRAR: ${error.message}`;
-        } else {
-          if (statusEl) statusEl.innerText = "PISTA ELIMINADA";
-          if (currentSongIndex === index) stopSong();
-          await loadCloudTracks();
-        }
-      }
-    }
-
-    document.getElementById("file-input").addEventListener("change", (e) => {
-      processAndUploadFiles(Array.from(e.target.files));
-    });
-
-    window.addEventListener("dragover", (e) => e.preventDefault());
-    window.addEventListener("drop", (e) => {
-      e.preventDefault();
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        processAndUploadFiles(Array.from(e.dataTransfer.files));
-      }
-    });
-
-    // ARCHIVOS LRC (LETRAS)
-    document.getElementById("lrc-file-input").addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (evt) => parseLRC(evt.target.result);
-      reader.readAsText(file);
-    });
-
-    function parseLRC(lrcText) {
-      lyricsData = [];
-      const lines = lrcText.split("\n");
-      const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
-
-      lines.forEach(line => {
-        const match = timeRegex.exec(line);
-        if (match) {
-          const minutes = parseInt(match[1]);
-          const seconds = parseInt(match[2]);
-          const millis = parseInt(match[3].padEnd(3, '0'));
-          const time = minutes * 60 + seconds + millis / 1000;
-          const text = line.replace(timeRegex, "").trim();
-          if (text) lyricsData.push({ time, text });
-        }
-      });
-      lyricsData.sort((a, b) => a.time - b.time);
-    }
-
-    // APLICAR SKINS
-    function applySkin(skinName) {
-      mainPlayer.className = `main-player-container skin-${skinName}${isPlaying ? ' playing' : ''}`;
-
-      let baseLayout = `
-        <div class="visualizer-wrapper">
-          <canvas id="visualizer"></canvas>
-        </div>
-        <div class="vu-meter-bar">
-          <span>VU</span>
-          <div class="vu-track"><div class="vu-fill" id="vu-fill"></div></div>
-          <button class="action-btn" id="btn-toggle-vis-mode" style="font-size:0.55rem;">MODO: BARRAS</button>
-          <button class="action-btn" id="btn-load-lrc" style="font-size:0.55rem;">[LRC]</button>
-        </div>
-        <div class="lyrics-display" id="lyrics-display">-- CYBER LYRICS --</div>
-      `;
-
-      if (skinName === "classic") {
-        mainPlayer.innerHTML = baseLayout + `
-          <div class="info-display">
-            <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
-            <div class="player-artist" id="player-track-artist">SYSTEM//READY</div>
-          </div>
-          <div class="player-controls">
-            <button class="player-btn" id="btn-player-prev">⏮</button>
-            <button class="player-btn" id="btn-player-play">▶</button>
-            <button class="player-btn" id="btn-player-next">⏭</button>
-          </div>
-          <div class="player-progress">
-            <span id="player-current-time">0:00</span>
-            <input type="range" id="player-progress-bar" value="0" min="0" step="0.1">
-            <span id="player-total-duration">0:00</span>
-          </div>
-        `;
-      } else if (skinName === "sony") {
-        mainPlayer.innerHTML = `
-          <div class="sony-brand">SONY CYBER-SYSTEM X1</div>
-          <div class="sony-screen">
-            <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px; margin-bottom: 5px;">
-              <div class="player-artist" id="player-track-artist">ARTISTA: N/A</div>
-              <div class="player-album" id="player-track-album" style="font-size:0.65rem;">ÁLBUM: SYSTEM</div>
-            </div>
-            ${baseLayout}
-          </div>
-          <div class="player-controls">
-            <button class="player-btn" id="btn-player-prev">⏮ REV</button>
-            <button class="player-btn" id="btn-player-play">▶ PLAY</button>
-            <button class="player-btn btn-stop" id="btn-player-stop">⏹ STOP</button>
-            <button class="player-btn" id="btn-player-next">⏭ FWD</button>
-          </div>
-          <div class="player-progress">
-            <span id="player-current-time">0:00</span>
-            <input type="range" id="player-progress-bar" value="0" min="0" step="0.1">
-            <span id="player-total-duration">0:00</span>
-          </div>
-        `;
-      } else if (skinName === "walkman") {
-        mainPlayer.innerHTML = `
-          <div class="walkman-header" style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <span class="walkman-logo">SONY WALKMAN</span>
-            <span style="font-size:0.5rem; color:#00f3ff;">AVLS // AUTO REVERSE</span>
-          </div>
-          <div class="walkman-window">
-            <div class="player-title" id="player-track-title">SELECCIONA PISTA</div>
-            <div class="player-artist" id="player-track-artist">SYSTEM READY</div>
-            <div class="cassette-window">
-              <div class="cassette-reel"></div>
-              <div style="width: 40px; height: 12px; background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; border-radius: 2px;"></div>
-              <div class="cassette-reel"></div>
-            </div>
-            ${baseLayout}
-          </div>
-          <div class="player-controls">
-            <button class="player-btn" id="btn-player-play">▶ PLAY</button>
-            <button class="player-btn" id="btn-player-pause">⏸ PAUSE</button>
-            <button class="player-btn btn-stop" id="btn-player-stop">⏹ EJECT</button>
-            <button class="player-btn" id="btn-player-prev">◄◄ REW</button>
-            <button class="player-btn" id="btn-player-next">►► FF</button>
-          </div>
-          <div class="player-progress">
-            <span id="player-current-time">0:00</span>
-            <input type="range" id="player-progress-bar" value="0" min="0" step="0.1">
-            <span id="player-total-duration">0:00</span>
-          </div>
-        `;
-      }
-
-      bindPlayerControls();
-      updatePlayerUI();
-      
-      canvas = document.getElementById("visualizer");
-      if (canvas) canvasCtx = canvas.getContext("2d");
-    }
-
-    function bindPlayerControls() {
-      const btnPlay = document.getElementById("btn-player-play");
-      const btnPause = document.getElementById("btn-player-pause");
-      const btnStop = document.getElementById("btn-player-stop");
-      const btnNext = document.getElementById("btn-player-next");
-      const btnPrev = document.getElementById("btn-player-prev");
-      const progressBar = document.getElementById("player-progress-bar");
-      const btnToggleVis = document.getElementById("btn-toggle-vis-mode");
-      const btnLoadLrc = document.getElementById("btn-load-lrc");
-
-      if (btnPlay) {
-        btnPlay.onclick = () => {
-          if (currentSongIndex === -1 && songs.length > 0) playQueue(songs, 0);
-          else isPlaying ? pauseSong() : playSong();
-        };
-      }
-
-      if (btnPause) btnPause.onclick = () => pauseSong();
-      if (btnStop) btnStop.onclick = () => stopSong();
-      if (btnNext) btnNext.onclick = () => playNext();
-      if (btnPrev) btnPrev.onclick = () => playPrev();
-
-      if (btnToggleVis) {
-        btnToggleVis.onclick = () => {
-          visualizerMode = (visualizerMode === "bars") ? "wave" : "bars";
-          btnToggleVis.innerText = visualizerMode === "bars" ? "MODO: BARRAS" : "MODO: ONDA";
-        };
-      }
-
-      if (btnLoadLrc) {
-        btnLoadLrc.onclick = () => document.getElementById("lrc-file-input").click();
-      }
-
-      if (progressBar) {
-        progressBar.oninput = () => {
-          if (audio.duration) audio.currentTime = (progressBar.value / 100) * audio.duration;
-        };
-      }
-    }
-
-    function playNext() {
-      if (currentQueue.length === 0) return;
-      currentSongIndex = (currentSongIndex + 1) % currentQueue.length;
-      loadSong(currentQueue[currentSongIndex]);
-      playSong();
-    }
-
-    function playPrev() {
-      if (currentQueue.length === 0) return;
-      currentSongIndex = (currentSongIndex - 1 + currentQueue.length) % currentQueue.length;
-      loadSong(currentQueue[currentSongIndex]);
-      playSong();
-    }
-
-    function playQueue(queue, index) {
-      currentQueue = queue;
-      currentSongIndex = index;
-      loadSong(currentQueue[currentSongIndex]);
-      playSong();
-    }
-
-    function loadSong(song) {
-      if (!song) return;
-      audio.src = song.src;
-      audio.load();
-      lyricsData = [];
-
-      if (window.jsmediatags && song.src) {
-        window.jsmediatags.read(song.src, {
-          onSuccess: function(tag) {
-            const tags = tag.tags;
-            if (tags.title) song.title = tags.title;
-            if (tags.artist) song.artist = tags.artist;
-            if (tags.album) song.album = tags.album;
-            updatePlayerUI();
-          },
-          onError: function() {
-            updatePlayerUI();
-          }
-        });
+    // CONTROL DE ESTADO DE SESIÓN EN TIEMPO REAL
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        showPlayerUI();
       } else {
-        updatePlayerUI();
+        showAuthUI();
       }
-    }
+    });
 
-    function updatePlayerUI() {
-      const song = currentQueue[currentSongIndex];
-      const playerTitle = document.getElementById("player-track-title");
-      const playerArtist = document.getElementById("player-track-artist");
-      const playerAlbum = document.getElementById("player-track-album");
-      const btnPlay = document.getElementById("btn-player-play");
+    // INICIAR SESIÓN CON CORREO Y CONTRASEÑA
+    async function login() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const msgBox = document.getElementById('auth-msg');
 
-      if (song) {
-        if (playerTitle) playerTitle.innerText = song.title;
-        if (playerArtist) playerArtist.innerText = (currentSkin === "sony" ? "ARTISTA: " : "") + song.artist;
-        if (playerAlbum) playerAlbum.innerText = "ÁLBUM: " + (song.album || "CYBER ALBUM");
-      }
+      msgBox.className = 'auth-msg';
+      msgBox.textContent = 'Autenticando...';
 
-      if (btnPlay) {
-        btnPlay.innerText = isPlaying ? (currentSkin === "classic" ? "⏸" : "⏸ PAUSE") : (currentSkin === "classic" ? "▶" : "▶ PLAY");
-      }
-
-      if (isPlaying) {
-        mainPlayer.classList.add("playing");
-      } else {
-        mainPlayer.classList.remove("playing");
-      }
-    }
-
-    function playSong() {
-      initAudioGraph();
-      if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
-      audio.play().then(() => {
-        isPlaying = true;
-        updatePlayerUI();
-      }).catch(() => {
-        isPlaying = false;
-        updatePlayerUI();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
       });
-    }
 
-    function pauseSong() {
-      isPlaying = false;
-      audio.pause();
-      updatePlayerUI();
-    }
-
-    function stopSong() {
-      isPlaying = false;
-      audio.pause();
-      audio.currentTime = 0;
-      updatePlayerUI();
-    }
-
-    audio.addEventListener("timeupdate", () => {
-      const progressBar = document.getElementById("player-progress-bar");
-      const currentTimeEl = document.getElementById("player-current-time");
-      const totalDurationEl = document.getElementById("player-total-duration");
-      const lyricsDisplay = document.getElementById("lyrics-display");
-
-      if (audio.duration) {
-        if (progressBar) progressBar.value = (audio.currentTime / audio.duration) * 100;
-        if (currentTimeEl) currentTimeEl.innerText = formatTime(audio.currentTime);
-        if (totalDurationEl) totalDurationEl.innerText = formatTime(audio.duration);
+      if (error) {
+        msgBox.className = 'auth-msg error';
+        msgBox.textContent = error.message;
+      } else {
+        msgBox.className = 'auth-msg success';
+        msgBox.textContent = 'Acceso concedido.';
       }
-
-      if (lyricsData.length > 0 && lyricsDisplay) {
-        const currentLyric = lyricsData.slice().reverse().find(l => audio.currentTime >= l.time);
-        lyricsDisplay.innerText = currentLyric ? currentLyric.text : "...";
-      }
-    });
-
-    audio.addEventListener("ended", () => playNext());
-
-    function formatTime(s) {
-      const min = Math.floor(s / 60);
-      const sec = Math.floor(s % 60);
-      return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // WEB AUDIO API Y VISUALIZADOR
-    let canvas = null, canvasCtx = null;
-    let audioCtx, analyser, sourceNode, lowFilter, midFilter, highFilter, audioGraphInitialized = false;
+    // REGISTRO DE NUEVO USUARIO
+    async function signUp() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const msgBox = document.getElementById('auth-msg');
 
-    function initAudioGraph() {
-      if (audioGraphInitialized) return;
-      try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContext();
+      msgBox.className = 'auth-msg';
+      msgBox.textContent = 'Registrando usuario...';
 
-        const savedLow = localStorage.getItem("musicapp_eq_low") || "0";
-        const savedMid = localStorage.getItem("musicapp_eq_mid") || "0";
-        const savedHigh = localStorage.getItem("musicapp_eq_high") || "0";
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password
+      });
 
-        document.getElementById("eq-low").value = savedLow;
-        document.getElementById("eq-mid").value = savedMid;
-        document.getElementById("eq-high").value = savedHigh;
-
-        lowFilter = audioCtx.createBiquadFilter();
-        lowFilter.type = "lowshelf"; lowFilter.frequency.value = 60;
-        lowFilter.gain.value = parseFloat(savedLow);
-
-        midFilter = audioCtx.createBiquadFilter();
-        midFilter.type = "peaking"; midFilter.frequency.value = 1000; midFilter.Q.value = 1.0;
-        midFilter.gain.value = parseFloat(savedMid);
-
-        highFilter = audioCtx.createBiquadFilter();
-        highFilter.type = "highshelf"; highFilter.frequency.value = 10000;
-        highFilter.gain.value = parseFloat(savedHigh);
-
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 128;
-
-        sourceNode = audioCtx.createMediaElementSource(audio);
-        sourceNode.connect(lowFilter);
-        lowFilter.connect(midFilter);
-        midFilter.connect(highFilter);
-        highFilter.connect(analyser);
-        analyser.connect(audioCtx.destination);
-
-        audioGraphInitialized = true;
-        drawVisualizer();
-      } catch (e) { console.log(e); }
+      if (error) {
+        msgBox.className = 'auth-msg error';
+        msgBox.textContent = error.message;
+      } else {
+        msgBox.className = 'auth-msg success';
+        msgBox.textContent = 'Registro exitoso. Revisa tu correo de confirmación si está activado.';
+      }
     }
 
-    document.getElementById("eq-low").addEventListener("input", (e) => {
-      if(lowFilter) lowFilter.gain.value = parseFloat(e.target.value);
-      localStorage.setItem("musicapp_eq_low", e.target.value);
-    });
-    document.getElementById("eq-mid").addEventListener("input", (e) => {
-      if(midFilter) midFilter.gain.value = parseFloat(e.target.value);
-      localStorage.setItem("musicapp_eq_mid", e.target.value);
-    });
-    document.getElementById("eq-high").addEventListener("input", (e) => {
-      if(highFilter) highFilter.gain.value = parseFloat(e.target.value);
-      localStorage.setItem("musicapp_eq_high", e.target.value);
-    });
+    // CERRAR SESIÓN
+    async function logout() {
+      await supabase.auth.signOut();
+    }
 
-    function drawVisualizer() {
-      requestAnimationFrame(drawVisualizer);
-      canvas = document.getElementById("visualizer");
-      if (!canvas || !viewLibrary.clientWidth) return;
-      canvasCtx = canvas.getContext("2d");
+    // CONTROL DE INTERFAZ
+    function showPlayerUI() {
+      document.getElementById('auth-box').style.display = 'none';
+      document.getElementById('main-player').style.display = 'block';
+      document.getElementById('navbar').style.display = 'flex';
+    }
 
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
-      const width = canvas.width, height = canvas.height;
+    function showAuthUI() {
+      document.getElementById('auth-box').style.display = 'block';
+      document.getElementById('main-player').style.display = 'none';
+      document.getElementById('navbar').style.display = 'none';
+    }
 
-      canvasCtx.clearRect(0, 0, width, height);
-
-      if (!analyser) return;
-
-      const bufferLength = analyser.frequencyBinCount;
-      const freqData = new Uint8Array(bufferLength);
-      analyser.getByteFrequencyData(freqData);
-
-      let sum = 0;
-      for (let i = 0; i < bufferLength; i++) { sum += freqData[i]; }
-      const averagePeak = sum / bufferLength;
-      const vuFill = document.getElementById("vu-fill");
-      if (vuFill) vuFill.style.width = `${Math.min(100, (averagePeak / 180) * 100)}%`;
-
-      if (visualizerMode === "bars") {
-        const barWidth = (width / bufferLength) * 1.5;
-        let x = 0;
-
-        for (let i = 0; i < bufferLength; i++) {
-          const barHeight = (freqData[i] / 255) * height * 0.85;
-
-          let gradient = canvasCtx.createLinearGradient(0, height, 0, 0);
-          gradient.addColorStop(0, "#00f3ff");
-          gradient.addColorStop(0.7, "#ff0055");
-          gradient.addColorStop(1, "#ffffff");
-
-          canvasCtx.fillStyle = gradient;
-          canvasCtx.fillRect(x, height - barHeight, barWidth - 2, barHeight);
-          x += barWidth;
-        }
-      } else if (visualizerMode === "wave") {
-        const timeData = new Uint8Array(analyser.fftSize);
-        analyser.getByteTimeDomainData(timeData);
-
-        canvasCtx.lineWidth = 2;
-        canvasCtx.strokeStyle = "#00f3ff";
-        canvasCtx.beginPath();
-
-        const sliceWidth = width / analyser.fftSize;
-        let x = 0;
-
-        for (let i = 0; i < analyser.fftSize; i++) {
-          const v = timeData[i] / 128.0;
-          const y = (v * height) / 2;
-
-          if (i === 0) canvasCtx.moveTo(x, y);
-          else canvasCtx.lineTo(x, y);
-
-          x += sliceWidth;
-        }
-
-        canvasCtx.lineTo(width, height / 2);
-        canvasCtx.stroke();
+    // GESTIÓN DE SKINS
+    function changeGxSkin(skinClass) {
+      document.body.className = ''; 
+      if (skinClass !== 'default') {
+        document.body.classList.add(skinClass);
       }
+    }
+
+    function toggleMenu() {
+      document.getElementById('dropdown-menu').classList.toggle('show');
+    }
+
+    function toggleSubmenu(id) {
+      document.getElementById(id).classList.toggle('show');
     }
   </script>
 </body>
