@@ -569,9 +569,9 @@
 
     startTVStatic();
 
-    // CREDENCIALES SUPABASE
-    const SUPABASE_URL = "https://cwpjjzamawyywfcsnaqo.supabase.co"; 
-    const SUPABASE_ANON_KEY = "sb_publishable_NynLf9J-n78PPW7Oaw2W1Q_0_kJjwtl"; 
+    // CREDENCIALES SUPABASE (Remplaza con tus valores reales)
+    const SUPABASE_URL = "https://TU_PROJECT_URL.supabase.co"; 
+    const SUPABASE_ANON_KEY = "TU_PUBLISHABLE_KEY"; 
     
     let supabaseClient = null;
     try {
@@ -762,76 +762,75 @@
       });
     }
 
-    // PROCESO DE SUBIDA CORREGIDO
-async function processAndUploadFiles(files) {
-  const statusEl = document.getElementById("upload-status");
-  if (!files.length) return;
+    // SUBIDA OPTIMIZADA Y ASÍNCRONA DE ARCHIVOS
+    async function processAndUploadFiles(files) {
+      const statusEl = document.getElementById("upload-status");
+      if (!files || !files.length) return;
 
-  if (!currentUser) {
-    statusEl.innerText = "ERROR: DEBES INICIAR SESIÓN PRIMERO";
-    return;
-  }
-
-  for (const file of files) {
-    statusEl.innerText = `PROCESANDO: ${file.name}...`;
-
-    // Metadatos por defecto
-    let title = file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
-    let artist = "ARTISTA DESCONOCIDO";
-    let album = "GX AUDIO";
-
-    // Intento de lectura de etiquetas ID3
-    try {
-      if (window.jsmediatags) {
-        await new Promise((resolve) => {
-          window.jsmediatags.read(file, {
-            onSuccess: (tag) => {
-              if (tag.tags.title) title = tag.tags.title;
-              if (tag.tags.artist) artist = tag.tags.artist;
-              if (tag.tags.album) album = tag.tags.album;
-              resolve();
-            },
-            onError: () => resolve() // Si falla, continúa con los nombres por defecto
-          });
-        });
+      if (!currentUser) {
+        statusEl.innerText = "ERROR: SESIÓN NO INICIADA";
+        return;
       }
-    } catch (e) {
-      console.warn("No se pudieron leer las etiquetas ID3:", e);
+
+      for (const file of files) {
+        statusEl.innerText = `ANALIZANDO: ${file.name}...`;
+
+        let title = file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
+        let artist = "ARTISTA DESCONOCIDO";
+        let album = "GX AUDIO";
+
+        // Lectura controlada de metadatos vía Promesa
+        try {
+          if (window.jsmediatags) {
+            await new Promise((resolve) => {
+              window.jsmediatags.read(file, {
+                onSuccess: (tag) => {
+                  if (tag.tags.title) title = tag.tags.title;
+                  if (tag.tags.artist) artist = tag.tags.artist;
+                  if (tag.tags.album) album = tag.tags.album;
+                  resolve();
+                },
+                onError: () => resolve()
+              });
+            });
+          }
+        } catch (e) {
+          console.warn("Librería ID3 omitida:", e);
+        }
+
+        await uploadFileToSupabase(file, title, artist, album);
+      }
     }
 
-    await uploadFileToSupabase(file, title, artist, album);
-  }
-}
+    async function uploadFileToSupabase(file, title, artist, album) {
+      const statusEl = document.getElementById("upload-status");
+      statusEl.innerText = `SUBIENDO: ${title}...`;
 
-async function uploadFileToSupabase(file, title, artist, album) {
-  const statusEl = document.getElementById("upload-status");
-  statusEl.innerText = `SUBIENDO: ${title}...`;
+      // Saneamiento estricto de nombres de archivo
+      const cleanFileName = file.name.toLowerCase().replace(/[^a-z0-9.-]/g, "_");
+      const filePath = `${currentUser.id}/${Date.now()}_${cleanFileName}`;
 
-  // Limpieza de caracteres especiales en el nombre del archivo
-  const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-  const filePath = `${currentUser.id}/${Date.now()}_${cleanFileName}`;
+      try {
+        const { data, error } = await supabaseClient.storage
+          .from("audio-tracks")
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: file.type || 'audio/mpeg'
+          });
 
-  try {
-    const { data, error } = await supabaseClient.storage
-      .from("audio-tracks")
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true,
-        contentType: file.type || 'audio/mpeg'
-      });
-
-    if (error) {
-      console.error("Supabase Storage Error:", error);
-      statusEl.innerText = `ERROR: ${error.message}`;
-    } else {
-      statusEl.innerText = `¡${title.toUpperCase()} SUBIDA CON ÉXITO!`;
-      await loadCloudTracks();
+        if (error) {
+          console.error("Storage Error:", error);
+          statusEl.innerText = `ERROR: ${error.message}`;
+        } else {
+          statusEl.innerText = "¡SUBIDA COMPLETADA!";
+          await loadCloudTracks();
+        }
+      } catch (err) {
+        console.error("Critical Upload Error:", err);
+        statusEl.innerText = "ERROR DE CONEXIÓN O ALMACENAMIENTO";
+      }
     }
-  } catch (err) {
-    console.error("Upload Catch Error:", err);
-    statusEl.innerText = "ERROR CRÍTICO AL SUBIR EL ARCHIVO";
-  }
-}
 
     // DESCARGAR PISTA
     async function downloadTrack(index, e) {
@@ -882,9 +881,15 @@ async function uploadFileToSupabase(file, title, artist, album) {
       }
     }
 
-    document.getElementById("file-input").addEventListener("change", (e) => {
-      processAndUploadFiles(Array.from(e.target.files));
-    });
+    // LISTENERS DE SUBIDA
+    const fileInput = document.getElementById("file-input");
+    if (fileInput) {
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          processAndUploadFiles(Array.from(e.target.files));
+        }
+      });
+    }
 
     window.addEventListener("dragover", (e) => e.preventDefault());
     window.addEventListener("drop", (e) => {
@@ -924,10 +929,8 @@ async function uploadFileToSupabase(file, title, artist, album) {
 
     // APLICAR SKINS OPERA GX Y CAMBIAR ENTORNO/FONDO
     function applySkin(skinName) {
-      // Limpiar clases previas de skins
       document.body.className = document.body.className.replace(/skin-\w+/g, '');
       
-      // Aplicar skin al body globalmente para cambiar colores de fondo y acentos
       if (skinName !== 'classic') {
         document.body.classList.add(`skin-${skinName}`);
       }
