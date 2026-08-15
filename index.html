@@ -24,7 +24,6 @@
       --gx-font: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
-    /* SKINS CON FONDOS Y ATMÓSFERAS INDIVIDUALES */
     body.skin-purple {
       --gx-bg: #0f0914;
       --gx-surface: #181122;
@@ -119,7 +118,6 @@
       pointer-events: none;
     }
 
-    /* DINÁMICA DE REPRODUCCIÓN EN FONDO GENERAL */
     body.logged-in:has(#main-player.playing) {
       background-image: 
         radial-gradient(circle at 50% 30%, var(--gx-accent-glow) 0%, transparent 70%),
@@ -487,8 +485,8 @@
     <div id="view-library" style="display:none;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
         <span style="font-size:0.8rem; font-weight:bold; color:var(--gx-text);">SUBIR ARCHIVOS:</span>
-        <input type="file" id="file-input" multiple accept="audio/*" style="display:none;">
-        <button class="neon-btn" onclick="document.getElementById('file-input').click()" style="font-size:0.7rem; padding:6px 10px;">+ ARCHIVOS</button>
+        <input type="file" id="file-input" multiple accept="audio/*, .mp3, .flac, .wav, .m4a" style="display:none;">
+        <button class="neon-btn" type="button" id="btn-trigger-upload" style="font-size:0.7rem; padding:6px 10px;">+ ARCHIVOS</button>
       </div>
       <div id="upload-status" style="font-size:0.7rem; color:var(--gx-accent); margin-bottom:8px;"></div>
       <ul class="track-list" id="library-track-list"></ul>
@@ -524,7 +522,7 @@
   </div>
 
   <script>
-    // EFECTO DE ESTÁTICA TV (FONDO)
+    // ESTÁTICA TV DE FONDO
     const staticCanvas = document.getElementById("tv-static-canvas");
     const staticCtx = staticCanvas.getContext("2d");
     let staticAnimationId = null;
@@ -569,7 +567,7 @@
 
     startTVStatic();
 
-    // CREDENCIALES SUPABASE (Remplaza con tus valores reales)
+    // CREDENCIALES SUPABASE (Reemplazar con tus credenciales)
     const SUPABASE_URL = "https://cwpjjzamawyywfcsnaqo.supabase.co"; 
     const SUPABASE_ANON_KEY = "sb_publishable_NynLf9J-n78PPW7Oaw2W1Q_0_kJjwtl"; 
     
@@ -580,7 +578,6 @@
 
     let currentUser = null;
     let songs = [];
-    let playlists = [];
     let currentQueue = [];
     let currentSongIndex = -1;
     let isPlaying = false;
@@ -714,7 +711,6 @@
       });
     }
 
-    // CARGAR ARCHIVOS DESDE SUPABASE
     async function loadCloudTracks() {
       if (!currentUser || !supabaseClient) return;
       
@@ -730,7 +726,6 @@
           title: file.name.replace(/^\d+_/, "").replace(/\.[^/.]+$/, "").replace(/_/g, " "),
           artist: "DESCONOCIDO",
           album: "GX AUDIO",
-          artwork: null,
           src: publicUrlData.publicUrl
         };
       });
@@ -738,7 +733,6 @@
       renderLibrary();
     }
 
-    // RENDERIZADO DE BIBLIOTECA
     function renderLibrary() {
       const list = document.getElementById("library-track-list");
       if (!list) return;
@@ -762,7 +756,6 @@
       });
     }
 
-    // SUBIDA OPTIMIZADA Y ASÍNCRONA DE ARCHIVOS
     async function processAndUploadFiles(files) {
       const statusEl = document.getElementById("upload-status");
       if (!files || !files.length) return;
@@ -779,7 +772,6 @@
         let artist = "ARTISTA DESCONOCIDO";
         let album = "GX AUDIO";
 
-        // Lectura controlada de metadatos vía Promesa
         try {
           if (window.jsmediatags) {
             await new Promise((resolve) => {
@@ -795,7 +787,7 @@
             });
           }
         } catch (e) {
-          console.warn("Librería ID3 omitida:", e);
+          console.warn("Manejador ID3 omitido:", e);
         }
 
         await uploadFileToSupabase(file, title, artist, album);
@@ -806,7 +798,6 @@
       const statusEl = document.getElementById("upload-status");
       statusEl.innerText = `SUBIENDO: ${title}...`;
 
-      // Saneamiento estricto de nombres de archivo
       const cleanFileName = file.name.toLowerCase().replace(/[^a-z0-9.-]/g, "_");
       const filePath = `${currentUser.id}/${Date.now()}_${cleanFileName}`;
 
@@ -827,12 +818,11 @@
           await loadCloudTracks();
         }
       } catch (err) {
-        console.error("Critical Upload Error:", err);
-        statusEl.innerText = "ERROR DE CONEXIÓN O ALMACENAMIENTO";
+        console.error("Upload Error:", err);
+        statusEl.innerText = "ERROR DE ALMACENAMIENTO";
       }
     }
 
-    // DESCARGAR PISTA
     async function downloadTrack(index, e) {
       e.stopPropagation();
       const song = songs[index];
@@ -860,14 +850,13 @@
       }
     }
 
-    // ELIMINAR PISTA
     async function deleteTrack(index, e) {
       e.stopPropagation();
       const song = songs[index];
       
-      if (confirm(`¿Confirmas eliminar "${song.title}" de tu biblioteca?`)) {
+      if (confirm(`¿Eliminar "${song.title}"?`)) {
         const statusEl = document.getElementById("upload-status");
-        if (statusEl) statusEl.innerText = `ELIMINANDO: ${song.title}...`;
+        if (statusEl) statusEl.innerText = `ELIMINANDO...`;
 
         const { error } = await supabaseClient.storage.from("audio-tracks").remove([song.fileNameOnServer]);
         
@@ -881,25 +870,41 @@
       }
     }
 
-    // LISTENERS DE SUBIDA
-    const fileInput = document.getElementById("file-input");
-    if (fileInput) {
-      fileInput.addEventListener("change", (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-          processAndUploadFiles(Array.from(e.target.files));
-        }
-      });
-    }
+    // CARGA Y INICIALIZACIÓN SEGURA DE EVENTOS DE ARCHIVOS EN DOM
+    document.addEventListener("DOMContentLoaded", () => {
+      const fileInput = document.getElementById("file-input");
+      const uploadBtn = document.getElementById("btn-trigger-upload");
+      const dropZone = document.getElementById("view-library");
 
-    window.addEventListener("dragover", (e) => e.preventDefault());
-    window.addEventListener("drop", (e) => {
-      e.preventDefault();
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        processAndUploadFiles(Array.from(e.dataTransfer.files));
+      if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener("click", () => fileInput.click());
+      }
+
+      if (fileInput) {
+        fileInput.addEventListener("change", (e) => {
+          const selectedFiles = Array.from(e.target.files || []);
+          if (selectedFiles.length > 0) {
+            processAndUploadFiles(selectedFiles);
+          }
+        });
+      }
+
+      if (dropZone) {
+        dropZone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+
+        dropZone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            processAndUploadFiles(Array.from(e.dataTransfer.files));
+          }
+        });
       }
     });
 
-    // ARCHIVOS LRC (LETRAS)
     document.getElementById("lrc-file-input").addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -927,20 +932,14 @@
       lyricsData.sort((a, b) => a.time - b.time);
     }
 
-    // APLICAR SKINS OPERA GX Y CAMBIAR ENTORNO/FONDO
     function applySkin(skinName) {
       document.body.className = document.body.className.replace(/skin-\w+/g, '');
-      
-      if (skinName !== 'classic') {
-        document.body.classList.add(`skin-${skinName}`);
-      }
+      if (skinName !== 'classic') document.body.classList.add(`skin-${skinName}`);
 
       mainPlayer.className = `main-player-container skin-${skinName}${isPlaying ? ' playing' : ''}`;
 
       let baseLayout = `
-        <div class="visualizer-wrapper">
-          <canvas id="visualizer"></canvas>
-        </div>
+        <div class="visualizer-wrapper"><canvas id="visualizer"></canvas></div>
         <div class="vu-meter-bar">
           <span>VU</span>
           <div class="vu-track"><div class="vu-fill" id="vu-fill"></div></div>
@@ -1104,9 +1103,7 @@
             if (tags.album) song.album = tags.album;
             updatePlayerUI();
           },
-          onError: function() {
-            updatePlayerUI();
-          }
+          onError: function() { updatePlayerUI(); }
         });
       } else {
         updatePlayerUI();
@@ -1130,11 +1127,8 @@
         btnPlay.innerText = isPlaying ? (currentSkin === "sony" || currentSkin === "walkman" ? "⏸ PAUSE" : "⏸") : (currentSkin === "sony" || currentSkin === "walkman" ? "▶ PLAY" : "▶");
       }
 
-      if (isPlaying) {
-        mainPlayer.classList.add("playing");
-      } else {
-        mainPlayer.classList.remove("playing");
-      }
+      if (isPlaying) mainPlayer.classList.add("playing");
+      else mainPlayer.classList.remove("playing");
     }
 
     function playSong() {
@@ -1188,7 +1182,6 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // WEB AUDIO API Y VISUALIZADOR
     let canvas = null, canvasCtx = null;
     let audioCtx, analyser, sourceNode, lowFilter, midFilter, highFilter, audioGraphInitialized = false;
 
