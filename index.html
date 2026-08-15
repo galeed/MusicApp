@@ -762,60 +762,76 @@
       });
     }
 
-    // PROCESO DE SUBIDA
-    async function processAndUploadFiles(files) {
-      const statusEl = document.getElementById("upload-status");
-      if (!files.length || !currentUser) return;
+    // PROCESO DE SUBIDA CORREGIDO
+async function processAndUploadFiles(files) {
+  const statusEl = document.getElementById("upload-status");
+  if (!files.length) return;
 
-      for (const file of files) {
-        statusEl.innerText = `PROCESANDO: ${file.name}...`;
+  if (!currentUser) {
+    statusEl.innerText = "ERROR: DEBES INICIAR SESIÓN PRIMERO";
+    return;
+  }
 
-        if (window.jsmediatags) {
+  for (const file of files) {
+    statusEl.innerText = `PROCESANDO: ${file.name}...`;
+
+    // Metadatos por defecto
+    let title = file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
+    let artist = "ARTISTA DESCONOCIDO";
+    let album = "GX AUDIO";
+
+    // Intento de lectura de etiquetas ID3
+    try {
+      if (window.jsmediatags) {
+        await new Promise((resolve) => {
           window.jsmediatags.read(file, {
-            onSuccess: async function(tag) {
-              const tags = tag.tags;
-              const title = tags.title || file.name.replace(/\.[^/.]+$/, "");
-              const artist = tags.artist || "ARTISTA DESCONOCIDO";
-              const album = tags.album || "ÁLBUM DESCONOCIDO";
-
-              await uploadFileToSupabase(file, title, artist, album);
+            onSuccess: (tag) => {
+              if (tag.tags.title) title = tag.tags.title;
+              if (tag.tags.artist) artist = tag.tags.artist;
+              if (tag.tags.album) album = tag.tags.album;
+              resolve();
             },
-            onError: async function() {
-              await uploadFileToSupabase(file, file.name.replace(/\.[^/.]+$/, ""), "ARTISTA DESCONOCIDO", "GX AUDIO");
-            }
+            onError: () => resolve() // Si falla, continúa con los nombres por defecto
           });
-        } else {
-          await uploadFileToSupabase(file, file.name.replace(/\.[^/.]+$/, ""), "ARTISTA DESCONOCIDO", "GX AUDIO");
-        }
+        });
       }
+    } catch (e) {
+      console.warn("No se pudieron leer las etiquetas ID3:", e);
     }
 
-    async function uploadFileToSupabase(file, title, artist, album) {
-      const statusEl = document.getElementById("upload-status");
-      statusEl.innerText = `SUBIENDO: ${title}...`;
+    await uploadFileToSupabase(file, title, artist, album);
+  }
+}
 
-      const cleanFileName = file.name.toLowerCase().replace(/[^a-z0-9.]/g, "_");
-      const filePath = `${currentUser.id}/${Date.now()}_${cleanFileName}`;
+async function uploadFileToSupabase(file, title, artist, album) {
+  const statusEl = document.getElementById("upload-status");
+  statusEl.innerText = `SUBIENDO: ${title}...`;
 
-      try {
-        const { data, error } = await supabaseClient.storage
-          .from("audio-tracks")
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: true,
-            contentType: file.type || 'audio/mpeg'
-          });
+  // Limpieza de caracteres especiales en el nombre del archivo
+  const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+  const filePath = `${currentUser.id}/${Date.now()}_${cleanFileName}`;
 
-        if (error) {
-          statusEl.innerText = `ERROR AL SUBIR: ${error.message}`;
-        } else {
-          statusEl.innerText = "¡SUBIDA COMPLETADA!";
-          await loadCloudTracks();
-        }
-      } catch (err) {
-        statusEl.innerText = "ERROR DE CONEXIÓN O ALMACENAMIENTO";
-      }
+  try {
+    const { data, error } = await supabaseClient.storage
+      .from("audio-tracks")
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type || 'audio/mpeg'
+      });
+
+    if (error) {
+      console.error("Supabase Storage Error:", error);
+      statusEl.innerText = `ERROR: ${error.message}`;
+    } else {
+      statusEl.innerText = `¡${title.toUpperCase()} SUBIDA CON ÉXITO!`;
+      await loadCloudTracks();
     }
+  } catch (err) {
+    console.error("Upload Catch Error:", err);
+    statusEl.innerText = "ERROR CRÍTICO AL SUBIR EL ARCHIVO";
+  }
+}
 
     // DESCARGAR PISTA
     async function downloadTrack(index, e) {
