@@ -11,7 +11,6 @@
   <style>
     /* VARIABLES DE TEMAS (SKINS DE OPERA GX) */
     :root {
-      /* Skin por defecto: GX Classic / Red */
       --gx-bg: #0d0e12;
       --gx-surface: #14161d;
       --gx-surface-card: #1c1e26;
@@ -60,7 +59,7 @@
       position: relative;
     }
 
-    /* Malla de puntos de fondo */
+    /* Malla de fondo sin intercepción de clics */
     body::before {
       content: "";
       position: fixed;
@@ -68,14 +67,14 @@
       background-image: radial-gradient(var(--gx-border) 1px, transparent 0);
       background-size: 24px 24px;
       opacity: 0.3;
-      z-index: -2;
+      z-index: 1;
       pointer-events: none;
     }
 
     .app-container {
       width: 95%;
       max-width: 520px;
-      z-index: 10;
+      z-index: 20; /* Eleva el contenedor por encima del fondo */
       margin: 20px auto;
       position: relative;
     }
@@ -92,6 +91,8 @@
       border-radius: 4px;
       margin-bottom: 15px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      position: relative;
+      z-index: 30;
     }
 
     .nav-controls {
@@ -173,15 +174,17 @@
     .submenu.show { display: block; }
 
     /* ========================================================= */
-    /* PANTALLA DE AUTENTICACIÓN (DISEÑO ORIGINAL INTACTO)        */
+    /* PANTALLA DE AUTENTICACIÓN                                 */
     /* ========================================================= */
     .auth-box {
-      background: rgba(10, 10, 20, 0.9);
+      background: rgba(10, 10, 20, 0.95);
       border: 2px solid #ff0055;
       padding: 25px;
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
       text-align: center;
+      position: relative;
+      z-index: 50; /* Prioridad máxima para asegurar respuesta de clics */
     }
 
     .cyber-input {
@@ -193,6 +196,8 @@
       color: #00f3ff;
       outline: none;
       border-radius: 4px;
+      position: relative;
+      z-index: 51;
     }
 
     .neon-btn {
@@ -205,6 +210,12 @@
       font-weight: bold;
       border-radius: 4px;
       box-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
+      position: relative;
+      z-index: 51;
+    }
+
+    .neon-btn:hover {
+      opacity: 0.9;
     }
 
     .auth-msg {
@@ -225,6 +236,7 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       margin-bottom: 15px;
       position: relative;
+      z-index: 30;
     }
 
     .main-player-container::before {
@@ -450,15 +462,15 @@
       </div>
     </nav>
 
-    <!-- FORMULARIO DE AUTH SUPABASE -->
+    <!-- FORMULARIO DE AUTH SUPABASE (CON Z-INDEX ELEVADO) -->
     <div class="auth-box" id="auth-box">
       <h2 style="color: #ff0055; margin-bottom: 15px;">LOGIN SYSTEM</h2>
       <input type="email" class="cyber-input" placeholder="Correo electrónico" id="email">
       <input type="password" class="cyber-input" placeholder="Contraseña" id="password">
       
       <div style="margin-top: 10px;">
-        <button class="neon-btn" onclick="login()">INGRESAR</button>
-        <button class="neon-btn" style="background: transparent; border: 1px solid #ff0055;" onclick="signUp()">REGISTRAR</button>
+        <button type="button" class="neon-btn" onclick="login()">INGRESAR</button>
+        <button type="button" class="neon-btn" style="background: transparent; border: 1px solid #ff0055;" onclick="signUp()">REGISTRAR</button>
       </div>
 
       <div class="auth-msg" id="auth-msg"></div>
@@ -532,6 +544,12 @@
       const password = document.getElementById('password').value;
       const msgBox = document.getElementById('auth-msg');
 
+      if (!email || !password) {
+        msgBox.className = 'auth-msg error';
+        msgBox.textContent = 'Por favor ingresa correo y contraseña.';
+        return;
+      }
+
       msgBox.className = 'auth-msg';
       msgBox.textContent = 'Autenticando...';
 
@@ -554,6 +572,12 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const msgBox = document.getElementById('auth-msg');
+
+      if (!email || !password) {
+        msgBox.className = 'auth-msg error';
+        msgBox.textContent = 'Por favor ingresa correo y contraseña.';
+        return;
+      }
 
       msgBox.className = 'auth-msg';
       msgBox.textContent = 'Registrando usuario...';
@@ -590,7 +614,7 @@
       document.getElementById('navbar').style.display = 'none';
     }
 
-    // GESTIÓN DE SKINS
+    // GESTIÓN DE SKINS OPERA GX
     function changeGxSkin(skinClass) {
       document.body.className = ''; 
       if (skinClass !== 'default') {
