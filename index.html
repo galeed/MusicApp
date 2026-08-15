@@ -11,7 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* VARIABLES DE TEMAS DE OPERA GX */
+    /* VARIABLES Y PALETAS DE FONDOS OPERA GX */
     :root {
       --gx-bg: #0d0e12;
       --gx-surface: #14161d;
@@ -24,21 +24,59 @@
       --gx-font: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
+    /* SKINS CON FONDOS Y ATMÓSFERAS INDIVIDUALES */
     body.skin-purple {
+      --gx-bg: #0f0914;
+      --gx-surface: #181122;
+      --gx-surface-card: #221830;
       --gx-accent: #9d4edd;
       --gx-accent-glow: rgba(157, 78, 221, 0.4);
+      --gx-border: #36244d;
     }
+
     body.skin-ultraviolet {
+      --gx-bg: #05131a;
+      --gx-surface: #0a1f29;
+      --gx-surface-card: #102a38;
       --gx-accent: #00f0ff;
       --gx-accent-glow: rgba(0, 240, 255, 0.4);
+      --gx-border: #1a4257;
     }
+
     body.skin-frankenstein {
+      --gx-bg: #07120a;
+      --gx-surface: #0d1f12;
+      --gx-surface-card: #142a1a;
       --gx-accent: #00ff66;
       --gx-accent-glow: rgba(0, 255, 102, 0.4);
+      --gx-border: #1e4527;
     }
+
     body.skin-gold {
+      --gx-bg: #14100b;
+      --gx-surface: #1f1a13;
+      --gx-surface-card: #2a231b;
       --gx-accent: #e0a96d;
       --gx-accent-glow: rgba(224, 169, 109, 0.4);
+      --gx-border: #423628;
+    }
+
+    body.skin-sony {
+      --gx-bg: #0a0a0c;
+      --gx-surface: #121318;
+      --gx-surface-card: #1a1b22;
+      --gx-accent: #3b82f6;
+      --gx-accent-glow: rgba(59, 130, 246, 0.4);
+      --gx-border: #252836;
+    }
+
+    body.skin-walkman {
+      --gx-bg: #120e08;
+      --gx-surface: #1c1710;
+      --gx-surface-card: #262018;
+      --gx-accent: #ff9900;
+      --gx-accent-glow: rgba(255, 153, 0, 0.4);
+      --gx-border: #3d3122;
     }
 
     * {
@@ -58,7 +96,7 @@
       justify-content: center;
       overflow-x: hidden;
       position: relative;
-      transition: background 0.5s ease-in-out;
+      transition: background-color 0.4s ease, color 0.4s ease;
     }
 
     body::before {
@@ -70,29 +108,29 @@
       opacity: 0.3;
       z-index: 10;
       pointer-events: none;
+      transition: opacity 0.4s ease;
     }
 
     #tv-static-canvas {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       z-index: 1;
-      opacity: 0.15;
+      opacity: 0.12;
       pointer-events: none;
     }
 
-    /* FONDO EN REPRODUCCIÓN */
+    /* DINÁMICA DE REPRODUCCIÓN EN FONDO GENERAL */
     body.logged-in:has(#main-player.playing) {
-      background-color: #08090c;
       background-image: 
-        radial-gradient(circle at 15% 15%, var(--gx-accent-glow) 0%, transparent 55%),
-        linear-gradient(180deg, rgba(20, 22, 29, 0.8) 0%, rgba(13, 14, 18, 0.95) 100%);
+        radial-gradient(circle at 50% 30%, var(--gx-accent-glow) 0%, transparent 70%),
+        linear-gradient(180deg, var(--gx-surface) 0%, var(--gx-bg) 100%);
     }
 
     body.logged-in:has(#main-player.playing)::after {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle, transparent 70%, rgba(0, 0, 0, 0.6) 100%);
+      background: radial-gradient(circle, transparent 65%, rgba(0, 0, 0, 0.75) 100%);
       pointer-events: none;
       z-index: 2;
     }
@@ -129,6 +167,7 @@
       border-radius: 4px;
       margin-bottom: 15px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      transition: all 0.4s ease;
     }
 
     .menu-btn {
@@ -193,6 +232,7 @@
       border-radius: 6px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
       text-align: center;
+      transition: all 0.4s ease;
     }
 
     .cyber-input {
@@ -238,6 +278,7 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       margin-bottom: 15px;
       position: relative;
+      transition: all 0.4s ease;
     }
 
     .main-player-container::before {
@@ -256,11 +297,11 @@
       position: relative;
       border-radius: 3px;
       overflow: hidden;
+      transition: all 0.4s ease;
     }
 
     #visualizer { width: 100%; height: 100%; }
 
-    /* MEDIDOR VU */
     .vu-meter-bar {
       display: flex;
       align-items: center;
@@ -287,7 +328,6 @@
       transition: width 0.05s linear;
     }
 
-    /* LYRICS */
     .lyrics-display {
       min-height: 30px;
       font-size: 0.8rem;
@@ -358,7 +398,6 @@
       box-shadow: 0 0 8px var(--gx-accent);
     }
 
-    /* ESTILOS DE SKINS OPERA GX */
     .skin-sony { background: var(--gx-surface-card); border: 1px solid var(--gx-border); }
     .skin-sony .sony-brand { font-weight: bold; color: var(--gx-accent); font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 8px; }
 
@@ -379,6 +418,7 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px; border-bottom: 1px solid var(--gx-border); font-size: 0.8rem;
       background: var(--gx-surface-card); margin-bottom: 4px; border-radius: 2px;
+      transition: all 0.3s ease;
     }
     .track-meta { cursor: pointer; flex: 1; }
     .track-actions { display: flex; gap: 5px; }
@@ -389,6 +429,7 @@
     .eq-container {
       display: flex; justify-content: space-between; background: var(--gx-surface);
       padding: 12px; border: 1px solid var(--gx-border); border-radius: 4px; margin-top: 10px; font-size: 0.75rem;
+      transition: all 0.4s ease;
     }
     .eq-band { display: flex; flex-direction: column; align-items: center; color: var(--gx-text-muted); }
     .eq-band input[type="range"] { accent-color: var(--gx-accent); margin-top: 5px; }
@@ -529,8 +570,8 @@
     startTVStatic();
 
     // CREDENCIALES SUPABASE
-    const SUPABASE_URL = "https://cwpjjzamawyywfcsnaqo.supabase.co"; 
-    const SUPABASE_ANON_KEY = "sb_publishable_NynLf9J-n78PPW7Oaw2W1Q_0_kJjwtl"; 
+    const SUPABASE_URL = "https://TU_PROJECT_URL.supabase.co"; 
+    const SUPABASE_ANON_KEY = "TU_PUBLISHABLE_KEY"; 
     
     let supabaseClient = null;
     try {
@@ -865,10 +906,13 @@
       lyricsData.sort((a, b) => a.time - b.time);
     }
 
-    // APLICAR SKINS OPERA GX
+    // APLICAR SKINS OPERA GX Y CAMBIAR ENTORNO/FONDO
     function applySkin(skinName) {
+      // Limpiar clases previas de skins
       document.body.className = document.body.className.replace(/skin-\w+/g, '');
-      if (skinName !== 'classic' && skinName !== 'sony' && skinName !== 'walkman') {
+      
+      // Aplicar skin al body globalmente para cambiar colores de fondo y acentos
+      if (skinName !== 'classic') {
         document.body.classList.add(`skin-${skinName}`);
       }
 
@@ -1207,7 +1251,6 @@
       const vuFill = document.getElementById("vu-fill");
       if (vuFill) vuFill.style.width = `${Math.min(100, (averagePeak / 180) * 100)}%`;
 
-      // Obtener el color acentuado según el tema actual para el visualizador
       const computedAccent = getComputedStyle(document.body).getPropertyValue('--gx-accent').trim() || '#ff0055';
 
       if (visualizerMode === "bars") {
