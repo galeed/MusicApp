@@ -515,6 +515,31 @@
       background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center;
     }
     .modal-content { background: var(--gx-surface); border: 1px solid var(--gx-border); padding: 20px; border-radius: 6px; width: 80%; max-width: 320px; }
+    
+        /* Estilos temáticos para la piel Radioactive */
+    body.skin-radioactive .neon-btn {
+      background: #39ff14;
+      color: #000000; /* Texto negro para contraste máximo */
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    body.skin-radioactive .neon-btn:hover {
+      background: #ffee00; /* Cambia a amarillo de advertencia al pasar el cursor */
+      box-shadow: 0 0 15px rgba(255, 238, 0, 0.6);
+    }
+
+    body.skin-radioactive .lyrics-display,
+    body.skin-radioactive .upload-percentage-text {
+      color: #ffee00; /* Mantener alertas y lírica en amarillo radioactivo */
+      text-shadow: 0 0 8px rgba(255, 238, 0, 0.5);
+    }
+
+    body.skin-radioactive .action-btn:hover {
+      border-color: #ffee00;
+      color: #ffee00;
+    }
+
 </style>
 </head>
 <body>
