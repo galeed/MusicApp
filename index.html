@@ -619,27 +619,57 @@ body.skin-pride #visualizer {
       animation: stardust-flow 120s linear infinite;
     }
 
-    /* Animación del fondo estelar */
+    /* Fondo espacial de estrellas fijas */
+    body.skin-space .main-player-container {
+      background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+      background-size: 550px 550px, 350px 350px, 250px 250px;
+      animation: stardust-flow 120s linear infinite;
+    }
+
     @keyframes stardust-flow {
       0% { background-position-y: 0; }
       100% { background-position-y: 550px; }
     }
 
-    /* Efecto de borde cian neón en los elementos principales */
+    /* Bordes y detalles en Cian Neón Espacial */
     body.skin-space .navbar,
     body.skin-space .auth-box,
-    body.skin-space .main-player-container,
-    body.skin-space .lyrics-box {
-      border: 1px solid var(--gx-accent) !important;
-      box-shadow: 0 0 15px var(--gx-accent-glow) !important;
+    body.skin-space .main-player-container {
+      border: 1px solid #00e5ff !important;
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.4) !important;
     }
 
-    /* Efecto de texto cian en el visualizador y botones */
-    body.skin-space .neon-btn {
-      background-color: var(--gx-accent) !important;
-      box-shadow: 0 0 10px var(--gx-accent-glow) !important;
-      color: #fff !important;
+    /* Estrellas fugaces creadas automáticamente por CSS */
+    body.skin-space::before,
+    body.skin-space::after {
+      content: "";
+      position: absolute;
+      top: 20%;
+      left: 80%;
+      width: 4px;
+      height: 4px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.1), 0 0 0 8px rgba(255,255,255,0.1), 0 0 20px rgba(255,255,255,1);
+      animation: shooting-star 4s linear infinite;
+      pointer-events: none;
     }
+
+    body.skin-space::after {
+      top: 60%;
+      left: 40%;
+      animation-delay: 2s;
+    }
+
+    @keyframes shooting-star {
+      0% { transform: rotate(-45deg) translateX(0); opacity: 1; }
+      70% { opacity: 1; }
+      100% { transform: rotate(-45deg) translateX(-500px); opacity: 0; }
+    }
+
 
 
 </style>
