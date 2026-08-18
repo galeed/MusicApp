@@ -69,6 +69,15 @@
       --gx-border: #382256;
     }
 
+    body.skin-space {
+      --gx-bg: #03001e; /* Fondo súper profundo (casi negro espacial) */
+      --gx-surface: #0a013d; /* Superficie azul muy oscura */
+      --gx-surface-card: #11025a; /* Tarjetas y paneles */
+      --gx-accent: #00e5ff; /* Cian neón vibrante */
+      --gx-accent-glow: rgba(0, 229, 255, 0.5);
+      --gx-border: #1a0678;
+    }
+
 
     body.skin-gold {
       --gx-bg: #14100b;
@@ -598,6 +607,41 @@ body.skin-pride #visualizer {
   mix-blend-mode: screen;
 }
 
+    /* Efecto de Estrellas en el Fondo */
+    body.skin-space .main-player-container {
+      background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px),
+        radial-gradient(rgba(255,255,255,.4), rgba(255,255,255,.1) 2px, transparent 3px);
+      background-size: 550px 550px, 350px 350px, 250px 250px, 150px 150px;
+      background-position: 0 0, 40px 60px, 130px 270px, 70px 100px;
+      animation: stardust-flow 120s linear infinite;
+    }
+
+    /* Animación del fondo estelar */
+    @keyframes stardust-flow {
+      0% { background-position-y: 0; }
+      100% { background-position-y: 550px; }
+    }
+
+    /* Efecto de borde cian neón en los elementos principales */
+    body.skin-space .navbar,
+    body.skin-space .auth-box,
+    body.skin-space .main-player-container,
+    body.skin-space .lyrics-box {
+      border: 1px solid var(--gx-accent) !important;
+      box-shadow: 0 0 15px var(--gx-accent-glow) !important;
+    }
+
+    /* Efecto de texto cian en el visualizador y botones */
+    body.skin-space .neon-btn {
+      background-color: var(--gx-accent) !important;
+      box-shadow: 0 0 10px var(--gx-accent-glow) !important;
+      color: #fff !important;
+    }
+
+
 </style>
 </head>
 <body>
@@ -625,6 +669,8 @@ body.skin-pride #visualizer {
         <div class="dropdown-item skin-option" data-skin="radioactive">► RADIOACTIVE</div>
 
         <div class="dropdown-item skin-option" data-skin="pride">► PRIDE</div>
+
+        <div class="dropdown-item skin-option" data-skin="space">► SPACE</div>
 
             <div class="dropdown-item skin-option" data-skin="gold">► GOLD</div>
             <div class="dropdown-item skin-option" data-skin="sony">► SONY GX</div>
