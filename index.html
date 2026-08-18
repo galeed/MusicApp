@@ -607,32 +607,66 @@ body.skin-pride #visualizer {
   mix-blend-mode: screen;
 }
 
-    /* Efecto de Estrellas en el Fondo */
-    body.skin-space .main-player-container {
-      background-image: 
-        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px),
-        radial-gradient(rgba(255,255,255,.4), rgba(255,255,255,.1) 2px, transparent 3px);
-      background-size: 550px 550px, 350px 350px, 250px 250px, 150px 150px;
-      background-position: 0 0, 40px 60px, 130px 270px, 70px 100px;
-      animation: stardust-flow 120s linear infinite;
-    }
-
-    /* Fondo espacial de estrellas fijas */
-    body.skin-space .main-player-container {
+    /* El cuadro del reproductor toma el fondo estelar dinámico */
+    body.skin-space .main-player-container,
+    body.skin-space #visualizer {
       background-image: 
         radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
         radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
         radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
       background-size: 550px 550px, 350px 350px, 250px 250px;
-      animation: stardust-flow 120s linear infinite;
+      background-position: center;
+      transition: all 0.5s ease-in-out;
     }
 
-    @keyframes stardust-flow {
-      0% { background-position-y: 0; }
-      100% { background-position-y: 550px; }
+
+    /* Paso 1: Fondo base estelar para el contenedor */
+    body.skin-space .main-player-container,
+    body.skin-space #visualizer {
+      background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+      background-size: 550px 550px, 350px 350px, 250px 250px;
+      background-position: center;
+      transition: all 0.5s ease-in-out;
     }
+
+    /* Paso 2: Pausa e Hiperespacio al reproducir */
+    body.skin-space.is-paused .main-player-container,
+    body.skin-space.is-paused #visualizer {
+      animation-play-state: paused !important;
+    }
+
+    body.skin-space.is-playing .main-player-container,
+    body.skin-space.is-playing #visualizer {
+      animation: hyperspace-travel 0.8s ease-in forwards, hyperspace-loop 0.5s linear infinite 0.8s !important;
+    }
+
+    @keyframes hyperspace-travel {
+      0% {
+        background-size: 550px 550px, 350px 350px, 250px 250px;
+        filter: blur(0px);
+      }
+      50% {
+        background-size: 20px 800px, 15px 600px, 10px 400px;
+        filter: blur(1px);
+      }
+      100% {
+        background-size: 800px 800px, 600px 600px, 400px 400px;
+        filter: blur(0px);
+      }
+    }
+
+    @keyframes hyperspace-loop {
+      0% {
+        background-position: 0 0, 0 0, 0 0;
+      }
+      100% {
+        background-position: 0 1000px, 0 800px, 0 600px;
+      }
+    }
+
 
     /* Bordes y detalles en Cian Neón Espacial */
     body.skin-space .navbar,
