@@ -587,22 +587,25 @@
       animation: rainbow-flow 4s linear infinite;
     }
     
-        /* Dirección Izquierda a Derecha */
-    @keyframes rainbow-flow-ltr {
-      0% { background-position: 0% 0%; }
-      100% { background-position: 100% 0%; }
-    }
+// Si la skin activa es Pride, aplicar el degradado a las barras
+if (document.body.classList.contains('skin-pride')) {
+  // Crear degradado horizontal solo para el canvas (de izquierda a derecha)
+  let rainbowGradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+  
+  // Colores pastel claros de la bandera LGBT
+  rainbowGradient.addColorStop(0.00, '#ff8888'); // Rojo pastel
+  rainbowGradient.addColorStop(0.20, '#ffcd85'); // Naranja pastel
+  rainbowGradient.addColorStop(0.40, '#fff585'); // Amarillo pastel
+  rainbowGradient.addColorStop(0.60, '#8effa3'); // Verde pastel
+  rainbowGradient.addColorStop(0.80, '#8eddff'); // Azul pastel
+  rainbowGradient.addColorStop(1.00, '#dfa3ff'); // Morado pastel
 
-    /* Tonos pastel para el ecualizador */
-    body.skin-pride #visualizer,
-    body.skin-pride .visualizer-wrapper {
-      background: linear-gradient(
-        90deg, 
-        #ff8888, #ffcd85, #fff585, #8effa3, #8eddff, #dfa3ff
-      ) !important;
-      background-size: 200% 100% !important;
-      animation: rainbow-flow-ltr 4s linear infinite !important;
-    }
+  ctx.fillStyle = rainbowGradient;
+} else {
+  // Para las demás skins, mantiene el color de acento estándar
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--gx-accent').trim();
+}
+
 
 
 
