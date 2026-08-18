@@ -468,14 +468,6 @@
     .action-btn:hover { border-color: var(--gx-accent); color: var(--gx-accent); }
     .action-btn.danger:hover { border-color: #ff3333; color: #ff3333; }
 
-    .eq-container {
-      display: flex; justify-content: space-between; background: var(--gx-surface);
-      padding: 12px; border: 1px solid var(--gx-border); border-radius: 4px; margin-top: 10px; font-size: 0.75rem;
-      transition: all 0.4s ease;
-    }
-    .eq-band { display: flex; flex-direction: column; align-items: center; color: var(--gx-text-muted); }
-    .eq-band input[type="range"] { accent-color: var(--gx-accent); margin-top: 5px; }
-
     .modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center;
@@ -546,21 +538,6 @@
       </div>
 
       <ul class="track-list" id="library-track-list"></ul>
-
-      <div class="eq-container">
-        <div class="eq-band">
-          <span>LOW</span>
-          <input type="range" id="eq-low" min="-12" max="12" value="0" step="1">
-        </div>
-        <div class="eq-band">
-          <span>MID</span>
-          <input type="range" id="eq-mid" min="-12" max="12" value="0" step="1">
-        </div>
-        <div class="eq-band">
-          <span>HIGH</span>
-          <input type="range" id="eq-high" min="-12" max="12" value="0" step="1">
-        </div>
-      </div>
     </div>
 
     <div id="view-playlists" style="display:none;">
@@ -1295,7 +1272,7 @@
     }
 
     let canvas = null, canvasCtx = null;
-    let audioCtx, analyser, sourceNode, lowFilter, midFilter, highFilter, audioGraphInitialized = false;
+    let audioCtx, analyser, sourceNode, audioGraphInitialized = false;
 
     function initAudioGraph() {
       if (audioGraphInitialized) return;
@@ -1303,53 +1280,17 @@
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
 
-        const savedLow = localStorage.getItem("musicapp_eq_low") || "0";
-        const savedMid = localStorage.getItem("musicapp_eq_mid") || "0";
-        const savedHigh = localStorage.getItem("musicapp_eq_high") || "0";
-
-        document.getElementById("eq-low").value = savedLow;
-        document.getElementById("eq-mid").value = savedMid;
-        document.getElementById("eq-high").value = savedHigh;
-
-        lowFilter = audioCtx.createBiquadFilter();
-        lowFilter.type = "lowshelf"; lowFilter.frequency.value = 60;
-        lowFilter.gain.value = parseFloat(savedLow);
-
-        midFilter = audioCtx.createBiquadFilter();
-        midFilter.type = "peaking"; midFilter.frequency.value = 1000; midFilter.Q.value = 1.0;
-        midFilter.gain.value = parseFloat(savedMid);
-
-        highFilter = audioCtx.createBiquadFilter();
-        highFilter.type = "highshelf"; highFilter.frequency.value = 10000;
-        highFilter.gain.value = parseFloat(savedHigh);
-
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 128;
 
         sourceNode = audioCtx.createMediaElementSource(audio);
-        sourceNode.connect(lowFilter);
-        lowFilter.connect(midFilter);
-        midFilter.connect(highFilter);
-        highFilter.connect(analyser);
+        sourceNode.connect(analyser);
         analyser.connect(audioCtx.destination);
 
         audioGraphInitialized = true;
         drawVisualizer();
       } catch (e) { console.log(e); }
     }
-
-    document.getElementById("eq-low").addEventListener("input", (e) => {
-      if(lowFilter) lowFilter.gain.value = parseFloat(e.target.value);
-      localStorage.setItem("musicapp_eq_low", e.target.value);
-    });
-    document.getElementById("eq-mid").addEventListener("input", (e) => {
-      if(midFilter) midFilter.gain.value = parseFloat(e.target.value);
-      localStorage.setItem("musicapp_eq_mid", e.target.value);
-    });
-    document.getElementById("eq-high").addEventListener("input", (e) => {
-      if(highFilter) highFilter.gain.value = parseFloat(e.target.value);
-      localStorage.setItem("musicapp_eq_high", e.target.value);
-    });
 
     function drawVisualizer() {
       requestAnimationFrame(drawVisualizer);
