@@ -1245,7 +1245,7 @@
 
     function playSong() {
       initAudioGraph();
-      if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+      if (audioCtx && audioCtx.state === "running") audioCtx.resume();
       audio.play().then(() => {
         isPlaying = true;
         updatePlayerUI();
