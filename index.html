@@ -1460,30 +1460,37 @@ body.skin-pride #visualizer {
       else mainPlayer.classList.remove("playing");
     }
 
-    function playSong() {
-      initAudioGraph();
-      if (audioCtx.state !== 'running') audioCtx.resume();
-      audio.play().then(() => {
-        isPlaying = true;
-        updatePlayerUI();
-      }).catch(() => {
-        isPlaying = false;
-        updatePlayerUI();
-      });
-    }
-
-    function pauseSong() {
-      isPlaying = false;
-      audio.pause();
+      function playSong() {
+    initAudioGraph();
+    if (audioCtx.state !== 'running') audioCtx.resume();
+    audio.play().then(() => {
+      isPlaying = true;
+      document.body.classList.add('is-playing');
+      document.body.classList.remove('is-paused');
       updatePlayerUI();
-    }
-
-    function stopSong() {
+    }).catch(() => {
       isPlaying = false;
-      audio.pause();
-      audio.currentTime = 0;
+      document.body.classList.remove('is-playing');
       updatePlayerUI();
-    }
+    });
+  }
+
+  function pauseSong() {
+    isPlaying = false;
+    audio.pause();
+    document.body.classList.add('is-paused');
+    document.body.classList.remove('is-playing');
+    updatePlayerUI();
+  }
+
+  function stopSong() {
+    isPlaying = false;
+    audio.pause();
+    audio.currentTime = 0;
+    document.body.classList.remove('is-playing', 'is-paused');
+    updatePlayerUI();
+  }
+
 
     audio.addEventListener("timeupdate", () => {
       const progressBar = document.getElementById("player-progress-bar");
