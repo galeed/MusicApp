@@ -60,7 +60,14 @@
       --gx-border: #1e4522;
     }
 
-
+    body.skin-pride {
+      --gx-bg: #0d0814;
+      --gx-surface: #160f24;
+      --gx-surface-card: #201633;
+      --gx-accent: #ff2a85; /* Rosa/rojo neón de acento base */
+      --gx-accent-glow: rgba(255, 42, 133, 0.45);
+      --gx-border: #382256;
+    }
 
     body.skin-gold {
       --gx-bg: #14100b;
@@ -540,6 +547,46 @@
       border-color: #ffee00;
       color: #ffee00;
     }
+    
+    /* Efecto Arcoíris de Derecha a Izquierda */
+    @keyframes rainbow-flow {
+      0% { background-position: 100% 0%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    /* Barras, bordes y botones con el degradado LGBT */
+    body.skin-pride .navbar,
+    body.skin-pride .auth-box,
+    body.skin-pride .main-player-container {
+      border-top: 3px solid transparent !important;
+      border-image: linear-gradient(
+        90deg, 
+        #e50000, #ff8d00, #ffee00, #028121, #004cff, #770088, #e50000
+      ) 1 !important;
+    }
+
+    body.skin-pride .vu-fill,
+    body.skin-pride .upload-progress-fill,
+    body.skin-pride .neon-btn {
+      background: linear-gradient(
+        270deg, 
+        #e50000, #ff8d00, #ffee00, #028121, #004cff, #770088, #e50000
+      ) !important;
+      background-size: 200% 200% !important;
+      animation: rainbow-flow 4s linear infinite !important;
+      border: none !important;
+      color: #ffffff !important;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    body.skin-pride .lyrics-display {
+      background: linear-gradient(270deg, #e50000, #ff8d00, #ffee00, #028121, #004cff, #770088);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: rainbow-flow 4s linear infinite;
+    }
+
 
 </style>
 </head>
@@ -566,6 +613,8 @@
             <div class="dropdown-item skin-option" data-skin="frankenstein">► FRANKENSTEIN</div>
           
         <div class="dropdown-item skin-option" data-skin="radioactive">► RADIOACTIVE</div>
+
+        <div class="dropdown-item skin-option" data-skin="pride">► PRIDE</div>
 
             <div class="dropdown-item skin-option" data-skin="gold">► GOLD</div>
             <div class="dropdown-item skin-option" data-skin="sony">► SONY GX</div>
