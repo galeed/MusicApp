@@ -586,6 +586,24 @@
       -webkit-text-fill-color: transparent;
       animation: rainbow-flow 4s linear infinite;
     }
+    
+        /* Dirección Izquierda a Derecha */
+    @keyframes rainbow-flow-ltr {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 0%; }
+    }
+
+    /* Tonos pastel para el ecualizador */
+    body.skin-pride #visualizer,
+    body.skin-pride .visualizer-wrapper {
+      background: linear-gradient(
+        90deg, 
+        #ff8888, #ffcd85, #fff585, #8effa3, #8eddff, #dfa3ff
+      ) !important;
+      background-size: 200% 100% !important;
+      animation: rainbow-flow-ltr 4s linear infinite !important;
+    }
+
 
 
 </style>
